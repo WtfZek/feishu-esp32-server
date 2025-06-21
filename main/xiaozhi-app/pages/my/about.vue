@@ -23,7 +23,7 @@
         <view class="section-title">联系方式</view>
         <view class="info-item">
           <text class="info-label">官方网站</text>
-          <text class="info-value">www.feishu-tech.com</text>
+          <text class="info-value">www.ai-tulip.site</text>
         </view>
         <view class="info-item">
           <text class="info-label">联系电话</text>
@@ -31,7 +31,7 @@
         </view>
         <view class="info-item">
           <text class="info-label">电子邮箱</text>
-          <text class="info-value">contact@feishu-tech.com</text>
+          <text class="info-value">contact@feishu-ai.site</text>
         </view>
       </view>
       
@@ -44,7 +44,7 @@
     </view>
     
     <view class="about-footer">
-      <text class="copyright">© 2023-2024 武汉飞鼠科技有限公司 版权所有</text>
+      <text class="copyright">© 2023-2025 武汉飞鼠科技有限公司 版权所有</text>
     </view>
   </view>
 </template>
@@ -59,7 +59,7 @@ export default {
 
 <style lang="scss">
 .about-page {
-  min-height: 100vh;
+  min-height: 94vh;
   background-color: #f5f6fa;
   padding: 40rpx 30rpx;
   display: flex;

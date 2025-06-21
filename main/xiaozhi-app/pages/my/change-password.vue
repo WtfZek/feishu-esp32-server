@@ -11,6 +11,7 @@
               placeholder="请输入原密码" 
               :password="!showOldPassword"
               :class="{'input-error': errors.oldPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
                 <u-icon name="eye" size="40rpx" color="#979db1" @click="showOldPassword = !showOldPassword"></u-icon>
@@ -26,6 +27,7 @@
               placeholder="请输入新密码" 
               :password="!showNewPassword"
               :class="{'input-error': errors.newPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
                 <u-icon name="eye" size="40rpx" color="#979db1" @click="showNewPassword = !showNewPassword"></u-icon>
@@ -41,6 +43,7 @@
               placeholder="请再次输入新密码" 
               :password="!showConfirmPassword"
               :class="{'input-error': errors.confirmPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
                 <u-icon name="eye" size="40rpx" color="#979db1" @click="showConfirmPassword = !showConfirmPassword"></u-icon>

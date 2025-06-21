@@ -88,7 +88,7 @@
               placeholder="请输入角色介绍"
               count
               maxlength="2000"
-              :height="form.model.memModelId === 'Memory_mem_local_short' ? '240rpx' : '260rpx'"
+              :height="form.model.memModelId === 'Memory_mem_local_short' ? '240rpx' : '340rpx'"
               :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             ></u-textarea>
           </view>
