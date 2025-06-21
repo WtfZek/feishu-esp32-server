@@ -16,9 +16,9 @@ server:
   # 当你使用docker部署或使用公网部署(使用ssl、域名)时，不一定准确
   # 所以如果你使用docker部署时，将vision_explain设置成局域网地址
   # 如果你使用公网部署时，将vision_explain设置成公网地址
-  vision_explain: http://你的ip或者域名:端口号/mcp/vision/explain
+  vision_explain: http://192.168.3.188:8003/mcp/vision/explain
 manager-api:
   # 你的manager-api的地址，最好使用局域网ip
-  url: http://127.0.0.1:8002/xiaozhi
+  url: http://192.168.3.188:8002/xiaozhi
   # 你的manager-api的token，就是刚才复制出来的server.secret
-  secret: 你的server.secret值
+  secret: 7373df3a-9ce7-46ba-9863-ec276a62f18a

@@ -174,3 +174,13 @@ main/xiaozhi-server/mysql
 uploadfile
 *.json
 .vscode
+
+# 忽略所有.log文件
+*.log
+
+# 忽略前端打包、node_modules环境文件
+main/manager-web/dist
+main/manager-web/node_modules
+main/xiaozhi-app/dist
+main/xiaozhi-app/node_modules
+
