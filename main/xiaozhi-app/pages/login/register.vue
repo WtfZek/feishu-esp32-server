@@ -188,12 +188,18 @@ export default {
       showPassword: false,
       enableMobileRegister: false,
       countdown: 0,
-      timer: null
+      timer: null,
+      // 添加来源页面记录
+      fromLogin: false
     }
   },
-  onLoad() {
+  onLoad(options) {
     this.getPubConfig();
     // this.fetchCaptcha();
+    
+    // 记录是否从登录页进入
+    this.fromLogin = options.from === 'login';
+    console.log('是否从登录页进入:', this.fromLogin);
   },
   methods: {
     // 获取验证码
@@ -359,9 +365,15 @@ export default {
             icon: 'success'
           });
           
-          // 注册成功后跳转到登录页
+          // 注册成功后返回登录页或跳转到登录页
           setTimeout(() => {
-            this.goToLogin();
+            if (this.fromLogin) {
+              // 如果是从登录页来的，直接返回
+              uni.navigateBack();
+            } else {
+              // 否则跳转到登录页
+              this.goToLogin();
+            }
           }, 1500);
         })
         .catch(error => {

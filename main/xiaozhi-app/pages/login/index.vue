@@ -253,7 +253,7 @@ const login = async () => {
 // 跳转到注册页面
 const goToRegister = () => {
   uni.navigateTo({
-    url: '/pages/login/register'
+    url: '/pages/login/register?from=login'
   });
 };
 
