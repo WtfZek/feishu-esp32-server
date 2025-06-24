@@ -99,6 +99,11 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         }
 
         // 如果排序字段为空，设置默认值0
+        if (entity.getPublished() == null) {
+            entity.setPublished(0);
+        }
+
+        // 如果排序字段为空，设置默认值0
         if (entity.getSort() == null) {
             entity.setSort(0);
         }
@@ -144,6 +149,10 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
 
             // 获取设备数量
             dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+
+            // 设置发布状态
+            dto.setPublished(agent.getPublished());
+            
             return dto;
         }).collect(Collectors.toList());
     }
@@ -151,7 +160,7 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
     @Override
     public List<AgentDTO> getPublishedAgents() {
         QueryWrapper<AgentEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_published", 1);
+        wrapper.eq("published", 1);
         List<AgentEntity> agents = agentDao.selectList(wrapper);
         return agents.stream().map(agent -> {
             AgentDTO dto = new AgentDTO();
@@ -179,8 +188,150 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
 
             // 获取设备数量
             dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+
+            // 设置发布状态
+            dto.setPublished(agent.getPublished());
+            
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public PageData<AgentDTO> getPublishedAgentsPage(Map<String, Object> params) {
+        // 构建查询条件
+        QueryWrapper<AgentEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("published", 1);
+        
+        // 获取分页对象
+        IPage<AgentEntity> page = agentDao.selectPage(
+                getPage(params, "agent_name", true),
+                wrapper);
+        
+        // 转换为DTO对象
+        List<AgentDTO> dtoList = page.getRecords().stream().map(agent -> {
+            AgentDTO dto = new AgentDTO();
+            dto.setId(agent.getId());
+            dto.setAgentName(agent.getAgentName());
+            dto.setSystemPrompt(agent.getSystemPrompt());
+
+            // 获取 TTS 模型名称
+            dto.setTtsModelName(modelConfigService.getModelNameById(agent.getTtsModelId()));
+
+            // 获取 LLM 模型名称
+            dto.setLlmModelName(modelConfigService.getModelNameById(agent.getLlmModelId()));
+
+            // 获取 VLLM 模型名称
+            dto.setVllmModelName(modelConfigService.getModelNameById(agent.getVllmModelId()));
+
+            // 获取记忆模型名称
+            dto.setMemModelId(agent.getMemModelId());
+
+            // 获取 TTS 音色名称
+            dto.setTtsVoiceName(timbreModelService.getTimbreNameById(agent.getTtsVoiceId()));
+
+            // 获取智能体最近的最后连接时长
+            dto.setLastConnectedAt(deviceService.getLatestLastConnectionTime(agent.getId()));
+
+            // 获取设备数量
+            dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+
+            // 设置发布状态
+            dto.setPublished(agent.getPublished());
+            
+            return dto;
+        }).collect(Collectors.toList());
+        
+        // 返回分页数据
+        return new PageData<>(dtoList, page.getTotal());
+    }
+
+    // TODO 改善这个屎山代码
+    @Override
+    public PageData<AgentDTO> getPublishedAgentsPage(Map<String, Object> params, AgentDTO filterDto) {
+        // 构建查询条件
+        QueryWrapper<AgentEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("published", 1);
+        
+        // 添加筛选条件
+        if (filterDto != null) {
+            // 如果agentName不为空，添加名称模糊查询条件
+            if (StringUtils.isNotBlank(filterDto.getAgentName())) {
+                wrapper.like("agent_name", "%" + filterDto.getAgentName() + "%");
+            }
+            
+            // 如果ttsModelName不为空，添加语音合成模型条件
+            if (StringUtils.isNotBlank(filterDto.getTtsModelName())) {
+                wrapper.inSql("tts_model_id", "SELECT id FROM ai_model_config WHERE model_name = '" + filterDto.getTtsModelName() + "'");
+            }
+            
+            // 如果llmModelName不为空，添加大语言模型条件
+            if (StringUtils.isNotBlank(filterDto.getLlmModelName())) {
+                wrapper.inSql("llm_model_id", "SELECT id FROM ai_model_config WHERE model_name = '" + filterDto.getLlmModelName() + "'");
+            }
+            
+            // 如果vllmModelName不为空，添加视觉语言模型条件
+            if (StringUtils.isNotBlank(filterDto.getVllmModelName())) {
+                wrapper.inSql("vllm_model_id", "SELECT id FROM ai_model_config WHERE model_name = '" + filterDto.getVllmModelName() + "'");
+            }
+            
+            // 如果ttsVoiceName不为空，添加音色条件
+            if (StringUtils.isNotBlank(filterDto.getTtsVoiceName())) {
+                wrapper.inSql("tts_voice_id",
+                        "SELECT id FROM ai_tts_voice WHERE name LIKE concat('%', #{filterDto.ttsVoiceName}, '%')");
+            }
+            
+            // 如果systemPrompt不为空，添加角色设定模糊查询条件
+            if (StringUtils.isNotBlank(filterDto.getSystemPrompt())) {
+                wrapper.like("system_prompt", "%" + filterDto.getSystemPrompt() + "%");
+            }
+            
+            // 如果memModelId不为空，添加记忆模型条件
+            if (StringUtils.isNotBlank(filterDto.getMemModelId())) {
+                wrapper.eq("mem_model_id", filterDto.getMemModelId());
+            }
+        }
+        
+        // 获取分页对象
+        IPage<AgentEntity> page = agentDao.selectPage(
+                getPage(params, "agent_name", true),
+                wrapper);
+        
+        // 转换为DTO对象
+        List<AgentDTO> dtoList = page.getRecords().stream().map(agent -> {
+            AgentDTO dto = new AgentDTO();
+            dto.setId(agent.getId());
+            dto.setAgentName(agent.getAgentName());
+            dto.setSystemPrompt(agent.getSystemPrompt());
+
+            // 获取 TTS 模型名称
+            dto.setTtsModelName(modelConfigService.getModelNameById(agent.getTtsModelId()));
+
+            // 获取 LLM 模型名称
+            dto.setLlmModelName(modelConfigService.getModelNameById(agent.getLlmModelId()));
+
+            // 获取 VLLM 模型名称
+            dto.setVllmModelName(modelConfigService.getModelNameById(agent.getVllmModelId()));
+
+            // 获取记忆模型名称
+            dto.setMemModelId(agent.getMemModelId());
+
+            // 获取 TTS 音色名称
+            dto.setTtsVoiceName(timbreModelService.getTimbreNameById(agent.getTtsVoiceId()));
+
+            // 获取智能体最近的最后连接时长
+            dto.setLastConnectedAt(deviceService.getLatestLastConnectionTime(agent.getId()));
+
+            // 获取设备数量
+            dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+
+            // 设置发布状态
+            dto.setPublished(agent.getPublished());
+            
+            return dto;
+        }).collect(Collectors.toList());
+        
+        // 返回分页数据
+        return new PageData<>(dtoList, page.getTotal());
     }
 
     @Override
@@ -287,6 +438,9 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         if (dto.getLanguage() != null) {
             existingEntity.setLanguage(dto.getLanguage());
         }
+        if (dto.getPublished() != null) {
+            existingEntity.setPublished(dto.getPublished());
+        }
         if (dto.getSort() != null) {
             existingEntity.setSort(dto.getSort());
         }
@@ -392,6 +546,9 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         entity.setUserId(user.getId());
         entity.setCreator(user.getId());
         entity.setCreatedAt(new Date());
+        
+        // 设置默认发布状态为未发布(0)
+        entity.setPublished(0);
 
         // 保存智能体
         insert(entity);
@@ -424,4 +581,92 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         agentPluginMappingService.saveBatch(toInsert);
         return entity.getId();
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String copyAgent(String id) {
+        // 检查ID是否为空
+        if (StringUtils.isBlank(id)) {
+            throw new RenException("智能体ID不能为空");
+        }
+
+        // 获取原智能体信息
+        AgentInfoVO sourceAgent = this.getAgentById(id);
+        if (sourceAgent == null) {
+            throw new RenException("智能体不存在");
+        }
+
+        if (sourceAgent.getPublished() == null || sourceAgent.getPublished() != 1) {
+            throw new RenException("智能体未发布，无法复制");
+        }
+
+        // 创建新的智能体创建DTO
+        AgentCreateDTO agentCreateDTO = new AgentCreateDTO();
+
+        // 设置智能体名称为原名称加上"创意中心"
+        agentCreateDTO.setAgentName(sourceAgent.getAgentName() + "——创意中心");
+
+        // 创建新的智能体（此时会使用当前用户作为creator）
+        String newAgentId = this.createAgent(agentCreateDTO);
+
+        // 更新新智能体的配置，复制原智能体的所有配置信息
+        AgentUpdateDTO updateDTO = ConvertUtils.sourceToTarget(sourceAgent, AgentUpdateDTO.class);
+        // 保留新名称
+        updateDTO.setAgentName(agentCreateDTO.getAgentName());
+        // 重置为未发布
+        updateDTO.setPublished(0);
+        // 更新配置
+        this.updateAgentById(newAgentId, updateDTO);
+
+        // 先删除createAgent方法中自动添加的默认插件
+        agentPluginMappingService.remove(
+                new QueryWrapper<AgentPluginMapping>().eq("agent_id", newAgentId)
+        );
+
+        // 复制插件配置
+        List<?> originalPlugins = sourceAgent.getFunctions();
+        if (originalPlugins != null && !originalPlugins.isEmpty()) {
+            List<AgentPluginMapping> newPlugins = new ArrayList<>();
+
+            // 处理每个插件映射
+            for (Object obj : originalPlugins) {
+                // 处理LinkedHashMap到AgentPluginMapping的转换
+                AgentPluginMapping newPlugin = new AgentPluginMapping();
+
+                if (obj instanceof Map<?, ?> map) {
+                    // 从Map中提取值
+                    if (map.get("pluginId") != null) {
+                        newPlugin.setPluginId(String.valueOf(map.get("pluginId")));
+                    }
+                    if (map.get("paramInfo") != null) {
+                        Object paramInfoObj = map.get("paramInfo");
+                        // 如果paramInfo是字符串，直接使用
+                        if (paramInfoObj instanceof String) {
+                            newPlugin.setParamInfo((String) paramInfoObj);
+                        }
+                        // 如果paramInfo是Map，转换为JSON字符串
+                        else if (paramInfoObj instanceof Map) {
+                            newPlugin.setParamInfo(JsonUtils.toJsonString(paramInfoObj));
+                        }
+                        // 其他情况，转换为字符串
+                        else {
+                            newPlugin.setParamInfo(String.valueOf(paramInfoObj));
+                        }
+                    }
+                    // ID设为null确保创建新记录
+                    newPlugin.setId(null);
+                    newPlugin.setAgentId(newAgentId);
+                    newPlugins.add(newPlugin);
+                }
+            }
+
+            // 保存新的插件映射
+            if (!newPlugins.isEmpty()) {
+                agentPluginMappingService.saveBatch(newPlugins);
+            }
+        }
+
+        return newAgentId;
+    }
+
 }

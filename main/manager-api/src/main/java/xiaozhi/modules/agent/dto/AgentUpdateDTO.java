@@ -70,7 +70,7 @@ public class AgentUpdateDTO implements Serializable {
     private String language;
 
     @Schema(description = "是否已发布")
-    private Integer isPublished;
+    private Integer published;
 
     @Schema(description = "排序", example = "1", nullable = true)
     private Integer sort;

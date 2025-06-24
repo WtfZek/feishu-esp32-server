@@ -12,6 +12,16 @@ export default {
   getAgentList() {
     return http(API.AGENT.LIST);
   },
+
+  /**
+   * 获取已发布的智能体列表
+   * @param {Object} params 分页参数 {page, limit}
+   * @param {Object} filter 筛选条件
+   * @returns {Promise} Promise对象
+   */
+  getPublishedAgentList(params = {}, filter = null) {
+    return http(API.AGENT.LIST_PUBLISHED, filter, 'POST', { params });
+  },
   
   /**
    * 创建智能体
@@ -104,5 +114,14 @@ export default {
    */
   updateAgentMemory(macAddress, data) {
     return http(`/agent/saveMemory/${macAddress}`, data, 'PUT');
-  }
+  },
+
+  /**
+   * 复制智能体
+   * @param {String} id 智能体ID
+   * @returns {Promise} Promise对象
+   */
+  cloneAgent(id) {
+    return http(API.AGENT.CLONE + id, {}, 'POST');
+  },
 }; 

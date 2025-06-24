@@ -81,12 +81,17 @@ public class AgentController {
         return new Result<List<AgentDTO>>().ok(agents);
     }
 
-    @GetMapping("/list/published")
+    @PostMapping("/list/published")
     @Operation(summary = "获取已发布的智能体列表")
-    @RequiresPermissions("sys:role:normal")
-    public Result<List<AgentDTO>> getPublishedAgents() {
-        List<AgentDTO> agents = agentService.getPublishedAgents();
-        return new Result<List<AgentDTO>>().ok(agents);
+    @Parameters({
+            @Parameter(name = Constant.PAGE, description = "当前页码，从1开始", required = true),
+            @Parameter(name = Constant.LIMIT, description = "每页显示记录数", required = true),
+    })
+    public Result<PageData<AgentDTO>> getPublishedAgents(
+            @Parameter(hidden = true) @RequestParam Map<String, Object> params,
+            @RequestBody(required = false) AgentDTO filterDto) {
+        PageData<AgentDTO> page = agentService.getPublishedAgentsPage(params, filterDto);
+        return new Result<PageData<AgentDTO>>().ok(page);
     }
 
     @GetMapping("/all")
@@ -230,51 +235,17 @@ public class AgentController {
                 .body(audioData);
     }
 
-    @PostMapping("/copy/{id}")
-    @Operation(summary = "复制智能体配置")
+    @PostMapping("/clone/{id}")
+    @Operation(summary = "克隆智能体配置")
     @RequiresPermissions("sys:role:normal")
-    public Result<String> copy(@PathVariable String id) {
+    public Result<String> clone(@PathVariable String id) {
         try {
-            // 获取原智能体信息
-            AgentInfoVO sourceAgent = agentService.getAgentById(id);
-            if (sourceAgent == null) {
-                return new Result<String>().error("智能体不存在");
+            // 检查ID是否为空
+            if (StringUtils.isBlank(id)) {
+                return new Result<String>().error("智能体ID不能为空");
             }
 
-            // 创建新的智能体创建DTO
-            AgentCreateDTO agentCreateDTO = new AgentCreateDTO();
-            // 设置智能体名称为原名称加上"的副本"
-            agentCreateDTO.setAgentName(sourceAgent.getAgentName() + "的副本");
-
-            // 创建新的智能体（此时会使用当前用户作为creator）
-            String newAgentId = agentService.createAgent(agentCreateDTO);
-
-            // 更新新智能体的配置，复制原智能体的所有配置信息
-            AgentUpdateDTO updateDTO = ConvertUtils.sourceToTarget(sourceAgent, AgentUpdateDTO.class);
-            // 保留新名称
-            updateDTO.setAgentName(agentCreateDTO.getAgentName());
-            // 更新配置
-            agentService.updateAgentById(newAgentId, updateDTO);
-
-            // 复制插件配置
-            List<AgentPluginMapping> originalPlugins = sourceAgent.getFunctions();
-            if (originalPlugins != null && !originalPlugins.isEmpty()) {
-                // 使用流操作和对象复制，更优雅地复制插件配置
-                List<AgentPluginMapping> newPlugins = originalPlugins.stream()
-                        .map(originalPlugin -> {
-                            // 使用ConvertUtils复制对象，然后只修改需要变更的字段
-                            AgentPluginMapping newPlugin = ConvertUtils.sourceToTarget(originalPlugin, AgentPluginMapping.class);
-                            // 清除ID确保创建新记录，设置新的智能体ID
-                            newPlugin.setId(null);
-                            newPlugin.setAgentId(newAgentId);
-                            return newPlugin;
-                        })
-                        .toList();
-
-                // 保存新的插件映射
-                agentPluginMappingService.saveBatch(newPlugins);
-            }
-
+            String newAgentId = agentService.copyAgent(id);
             return new Result<String>().ok(newAgentId);
         } catch (Exception e) {
             return new Result<String>().error("复制智能体失败: " + e.getMessage());

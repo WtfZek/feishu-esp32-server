@@ -5,6 +5,7 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -71,7 +72,7 @@ public class AgentEntity {
     private String language;
 
     @Schema(description = "是否已发布")
-    private Integer isPublished;
+    private Integer published;
 
     @Schema(description = "排序")
     private Integer sort;

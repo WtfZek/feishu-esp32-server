@@ -33,6 +33,18 @@
                 <text class="agent-item__info-label">音色模型：</text>
                 <text class="agent-item__info-value">{{ item.ttsVoiceName }}</text>
               </view>
+              <view class="agent-item__info-item publish-switch-row">
+                <text class="agent-item__info-label">发布状态：</text>
+                <view class="publish-switch-value">
+                  <u-switch 
+                    v-model="item.published"
+                    :size="24"
+                    activeColor="#5bc98c"
+                    inactiveColor="#e6e6e6"
+                    @change="(value) => handlePublishSwitchChange(item, value)"
+                  ></u-switch>
+                </view>
+              </view>
               <!-- <view class="agent-item__prompt-box" v-if="item.systemPrompt">
                 <scroll-view scroll-y class="agent-item__prompt-scroll">
                   <text class="agent-item__prompt-text">{{ item.systemPrompt }}</text>
@@ -109,7 +121,8 @@ export default {
         intentModelId: 'Intent_function_call',
         chatHistoryConf: 1,
         langCode: 'zh',
-        language: '中文'
+        language: '中文',
+        published: 0
       },
       refreshing: false
     };
@@ -133,7 +146,13 @@ export default {
           title: '加载中...',
           mask: true
         });
-        this.agentList = await agentApi.getAgentList();
+        const list = await agentApi.getAgentList();
+        this.agentList = list.map(item => {
+          return {
+            ...item,
+            published: item.published === 1
+          };
+        });
       } catch (error) {
         console.error('获取智能体列表失败', error);
         uni.showToast({
@@ -245,6 +264,30 @@ export default {
           }
         }
       });
+    },
+    // 处理发布状态开关变化
+    handlePublishSwitchChange(item, newValue) {
+      // 先更新本地UI状态，避免点击后没有响应
+      item.published = newValue;
+
+      const published = newValue ? 1 : 0;
+      
+      // 调用更新API，只更新published字段
+      agentApi.updateAgent(item.id, { published: published })
+        .then(() => {
+          uni.showToast({
+            title: newValue ? '已发布' : '已取消发布',
+            icon: 'success'
+          });
+        })
+        .catch(err => {
+          // 如果操作失败，恢复到原来的状态
+          item.published = !newValue;
+          uni.showToast({
+            title: err.message || '操作失败',
+            icon: 'none'
+          });
+        });
     },
     // 下拉刷新
     onRefresh() {
@@ -441,5 +484,17 @@ export default {
       flex: 1;
     }
   }
+}
+
+// 发布状态开关样式
+.publish-switch-row {
+  margin-top: 10rpx;
+  align-items: center;
+}
+
+.publish-switch-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 </style> 

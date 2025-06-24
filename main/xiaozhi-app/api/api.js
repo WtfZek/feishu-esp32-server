@@ -24,6 +24,7 @@ export const API = {
   // 智能体相关
   AGENT: {
     LIST: '/agent/list',
+    LIST_PUBLISHED: '/agent/list/published',
     CREATE: '/agent',
     DELETE: '/agent/',
     DETAIL: '/agent/',
@@ -32,7 +33,8 @@ export const API = {
     SESSIONS: '/agent/{id}/sessions',
     CHAT_HISTORY: '/agent/{id}/chat-history/',
     AUDIO: '/agent/audio/',
-    PLAY: '/agent/play/'
+    PLAY: '/agent/play/',
+    CLONE: '/agent/clone/'
   },
   
   // 设备相关

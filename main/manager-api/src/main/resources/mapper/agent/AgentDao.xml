@@ -28,7 +28,7 @@
         <result column="summaryMemory" property="summaryMemory"/>
         <result column="langCode" property="langCode"/>
         <result column="language" property="language"/>
-        <result column="isPublished" property="isPublished"/>
+        <result column="published" property="published"/>
         <result column="sort" property="sort"/>
         <result column="creator" property="creator"/>
         <result column="createdAt" property="createdAt"/>
@@ -68,7 +68,7 @@
                a.summary_memory    AS summaryMemory,
                a.lang_code         AS langCode,
                a.language          AS language,
-               a.is_published      AS isPublished,
+               a.published,
                a.sort,
                a.creator,
                a.created_at        AS createdAt,

@@ -59,11 +59,28 @@ public interface AgentService extends BaseService<AgentEntity> {
     List<AgentDTO> getUserAgents(Long userId);
 
     /**
-     * 获取用户智能体列表
+     * 获取已发布的智能体列表
      *
      * @return 智能体列表
      */
     List<AgentDTO> getPublishedAgents();
+
+    /**
+     * 获取已发布的智能体列表（分页）
+     *
+     * @param params 查询参数
+     * @return 分页数据
+     */
+    PageData<AgentDTO> getPublishedAgentsPage(Map<String, Object> params);
+
+    /**
+     * 获取已发布的智能体列表（分页）带筛选条件
+     *
+     * @param params 查询参数
+     * @param filterDto 筛选条件
+     * @return 分页数据
+     */
+    PageData<AgentDTO> getPublishedAgentsPage(Map<String, Object> params, AgentDTO filterDto);
 
     /**
      * 根据智能体ID获取设备数量
@@ -105,4 +122,12 @@ public interface AgentService extends BaseService<AgentEntity> {
      * @return 创建的智能体ID
      */
     String createAgent(AgentCreateDTO dto);
+
+    /**
+     * 复制智能体
+     *
+     * @param id 需要拷贝的智能体 ID
+     * @return 复制操作结束后的信息
+     */
+    String copyAgent(String id);
 }

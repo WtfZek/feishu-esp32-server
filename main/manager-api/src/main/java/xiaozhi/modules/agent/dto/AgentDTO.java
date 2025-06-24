@@ -44,7 +44,7 @@ public class AgentDTO {
     private String summaryMemory;
 
     @Schema(description = "是否已发布", example = "1")
-    private Integer isPublished;
+    private Integer published;
 
     @Schema(description = "最后连接时间", example = "2024-03-20 10:00:00")
     private Date lastConnectedAt;

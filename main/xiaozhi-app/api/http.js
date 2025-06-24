@@ -27,7 +27,7 @@ const http = function(url, data = {}, method = 'GET', options = {}) {
 	// 请求头
 	const header = {
 		'content-type': 'application/json; charset=utf-8',
-		...options.header
+		...(options.header || {})
 	};
 	
 	// 添加token
@@ -36,10 +36,22 @@ const http = function(url, data = {}, method = 'GET', options = {}) {
 		header.Authorization = 'Bearer ' + token;
 	}
 	
+	// 处理URL参数
+	let requestUrl = baseUrl + url;
+	if (options && options.params) {
+		const queryString = Object.keys(options.params)
+			.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(options.params[key])}`)
+			.join('&');
+		
+		if (queryString) {
+			requestUrl += (url.includes('?') ? '&' : '?') + queryString;
+		}
+	}
+	
 	// 返回Promise对象
 	return new Promise((resolve, reject) => {
 		uni.request({
-			url: baseUrl + url,
+			url: requestUrl,
 			data,
 			method,
 			header,

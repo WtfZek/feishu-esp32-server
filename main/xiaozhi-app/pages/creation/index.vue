@@ -1,92 +1,77 @@
 <template>
-  <view class="agent-page">
+  <view class="creation-page">
+    <!-- 页面头部 -->
+    <view class="creation-header">
+      <text class="creation-title">创作社区</text>
+      <text class="creation-subtitle">共创和谐社区，共享优质智能助手</text>
+    </view>
+    
     <scroll-view 
-      class="agent-list"
+      class="creation-list"
       scroll-y
       refresher-enabled
       :refresher-triggered="refreshing"
       @refresherrefresh="onRefresh"
+      @scrolltolower="loadMore"
     >
-      <view class="agent-empty" v-if="agentList.length === 0">
-        <!-- <u-empty mode="list" icon="https://cdn.uviewui.com/uview/empty/list.png"> -->
-
-        <!-- </u-empty> -->
+      <view class="creation-empty" v-if="agentList.length === 0">
+        <u-empty mode="list" icon="">
+          <text slot="message">暂无已发布的智能助手</text>
+        </u-empty>
       </view>
-      <view class="agent-items" v-else>
-        <view class="agent-item" v-for="(item, index) in agentList" :key="index">
-          <view class="agent-item__header">
-            <view class="agent-item__avatar-name">
-              <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
-              <text class="agent-item__name">{{ item.agentName }}</text>
+      <view class="creation-items" v-else>
+        <view class="creation-item" v-for="(item, index) in agentList" :key="index">
+          <view class="creation-item__header" @click="viewAgentDetail(item)">
+            <view class="creation-item__avatar-name">
+              <image class="creation-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+              <text class="creation-item__name">{{ item.agentName }}</text>
             </view>
-            <view class="agent-item__actions">
-              <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
+            <view class="creation-item__clone-btn" @click.stop="cloneAgent(item)">
+              <u-icon name="plus" color="#fff" size="32rpx"></u-icon>
             </view>
           </view>
-          <view class="agent-item__content">
-            <view class="agent-item__info">
-              <!-- <view class="agent-item__info-item">
-                <text class="agent-item__info-label">语音模型：</text>
-                <text class="agent-item__info-value">{{ item.ttsModelName }}</text>
-              </view> -->
-              <view class="agent-item__info-item">
-                <text class="agent-item__info-label">音色模型：</text>
-                <text class="agent-item__info-value">{{ item.ttsVoiceName }}</text>
+          <view class="creation-item__content" @click="viewAgentDetail(item)">
+            <view class="creation-item__info">
+              <view class="creation-item__info-item">
+                <text class="creation-item__info-label">音色模型：</text>
+                <text class="creation-item__info-value">{{ item.ttsVoiceName }}</text>
               </view>
-              <!-- <view class="agent-item__prompt-box" v-if="item.systemPrompt">
-                <scroll-view scroll-y class="agent-item__prompt-scroll">
-                  <text class="agent-item__prompt-text">{{ item.systemPrompt }}</text>
+              <view class="creation-item__prompt-box" v-if="item.systemPrompt">
+                <scroll-view scroll-y class="creation-item__prompt-scroll">
+                  <text class="creation-item__prompt-text">{{ item.systemPrompt }}</text>
                 </scroll-view>
-              </view> -->
+              </view>
             </view>
           </view>
-          <view class="agent-item__button-group">
-            <view class="agent-item__button" @click="goToConfig(item)">
-              <text>角色配置</text>
+          <view class="creation-item__footer">
+            <view class="creation-item__stats">
+              <view class="creation-item__stat-item" @click.stop="toggleLike(item)">
+                <u-icon :name="item.isLiked ? 'heart-fill' : 'heart'" size="40rpx" :color="item.isLiked ? '#FF5B8F' : '#979db1'"></u-icon>
+                <text class="creation-item__stat-text">{{ item.likes || 0 }}</text>
+              </view>
+              <view class="creation-item__stat-item" @click.stop="shareAgent(item)">
+                <u-icon name="share" size="40rpx" color="#979db1"></u-icon>
+                <text class="creation-item__stat-text">分享</text>
+              </view>
+              <view class="creation-item__stat-item">
+                <u-icon name="download" size="40rpx" color="#979db1"></u-icon>
+                <text class="creation-item__stat-text">{{ item.deviceCount || 0 }}</text>
+              </view>
             </view>
-            <view class="agent-item__button" @click="goToDeviceManage(item)">
-              <text>设备管理({{ item.deviceCount || 0 }})</text>
-            </view>
-            <view class="agent-item__button" :class="{'agent-item__button--disabled': item.memModelId === 'Memory_nomem'}" @click="goToChatHistory(item)">
-              <text>聊天记录</text>
-            </view>
-          </view>
-          <view class="agent-item__footer">
-            <text class="agent-item__time" v-if="item.lastConnectedAt">最近连接: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD HH:mm') }}</text>
+            <text class="creation-item__time" v-if="item.lastConnectedAt">最近更新: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD') }}</text>
           </view>
         </view>
-        <view style="height: 130rpx;"></view>
+        
+        <!-- 加载更多提示 -->
+        <view class="loading-more" v-if="agentList.length > 0">
+          <text v-if="isLoading">加载中...</text>
+          <text v-else-if="hasMore">上拉加载更多</text>
+          <text v-else>没有更多数据了</text>
+        </view>
+        
+        <view style="height: 30rpx;"></view>
       </view>
     </scroll-view>
-    
-    <!-- 创建智能体按钮，固定在底部 -->
-    <view class="agent-add">
-      <u-button type="primary" text="创建智能体" @click="showAddDialog" background="linear-gradient(135deg, #4cd964, #00c16e);"></u-button>
-    </view>
-    
-    <!-- 添加智能体对话框 -->
-    <u-popup :show="addDialogVisible" mode="center" round="10" @close="closeAddDialog">
-      <view class="add-dialog">
-        <view class="add-dialog__header">
-          <text class="add-dialog__title">添加智能体</text>
-          <u-icon name="close" size="28rpx" @click="closeAddDialog"></u-icon>
-        </view>
-        <view class="add-dialog__content">
-          <u-form :model="agentForm" ref="agentForm">
-            <u-form-item label="助手昵称" prop="agentName" labelWidth="150rpx">
-              <u-input v-model="agentForm.agentName" placeholder="请输入助手昵称" maxlength="10"></u-input>
-            </u-form-item>
-            
-            <!-- 可以添加更多表单项，如角色类型选择等 -->
-            
-          </u-form>
-        </view>
-        <view class="add-dialog__footer">
-          <u-button type="primary" text="确定" @click="createAgent"></u-button>
-          <u-button type="info" text="取消" plain @click="closeAddDialog"></u-button>
-        </view>
-      </view>
-    </u-popup>
   </view>
 </template>
 
@@ -97,43 +82,98 @@ export default {
   data() {
     return {
       agentList: [],
-      addDialogVisible: false,
-      agentForm: {
-        agentName: '',
-        ttsVoiceId: 'TTS_DoubaoTTS0001',
-        ttsModelId: 'TTS_DoubaoTTS',
-        vadModelId: 'VAD_SileroVAD',
-        asrModelId: 'ASR_DoubaoASR',
-        llmModelId: 'LLM_AliLLM',
-        memModelId: 'Memory_mem0ai',
-        intentModelId: 'Intent_function_call',
-        chatHistoryConf: 1,
-        langCode: 'zh',
-        language: '中文'
-      },
-      refreshing: false
+      refreshing: false,
+      likedAgents: {}, // 存储用户点赞状态
+      
+      // 分页相关
+      currentPage: 1,
+      pageSize: 5,
+      total: 0,
+      hasMore: true,
+      isLoading: false
     };
   },
   onLoad() {
+    // 从本地存储加载点赞状态
+    try {
+      const likedAgentsStr = uni.getStorageSync('likedAgents');
+      if (likedAgentsStr) {
+        this.likedAgents = JSON.parse(likedAgentsStr);
+      }
+    } catch (e) {
+      console.error('获取点赞状态失败', e);
+    }
+    
     this.getAgentList();
   },
   onShow() {
     // 每次页面显示时刷新数据
-    this.getAgentList();
+    this.resetAndRefresh();
   },
   onPullDownRefresh() {
-    this.getAgentList();
+    this.resetAndRefresh();
     uni.stopPullDownRefresh();
   },
   methods: {
-    // 获取智能体列表
+    // 重置数据并刷新
+    resetAndRefresh() {
+      this.currentPage = 1;
+      this.agentList = [];
+      this.hasMore = true;
+      this.getAgentList();
+    },
+    
+    // 获取已发布的智能体列表
     async getAgentList() {
+      if (!this.hasMore || this.isLoading) return;
+      
       try {
-        uni.showLoading({
-          title: '加载中...',
-          mask: true
+        this.isLoading = true;
+        
+        if (this.currentPage === 1) {
+          uni.showLoading({
+            title: '加载中...',
+            mask: true
+          });
+        }
+        
+        // 构建分页参数
+        const params = {
+          page: this.currentPage,
+          limit: this.pageSize
+        };
+        
+        // 构建筛选条件（如果有）
+        // 如果有筛选需求，可以在这里添加筛选条件
+        // const filter = { ttsVoiceName: '湾湾小何' };
+        const filter = null;
+        
+        // 调用API获取数据
+        const res = await agentApi.getPublishedAgentList(params, filter);
+        
+        // 处理后端返回的分页数据
+        const { list, total } = res;
+        
+        // 处理列表数据，添加点赞状态
+        const processedList = list.map(item => {
+          return {
+            ...item,
+            isLiked: !!this.likedAgents[item.id],
+            likes: Math.floor(Math.random() * 1000) // 模拟点赞数据，实际应从后端获取
+          };
         });
-        this.agentList = await agentApi.getAgentList();
+        
+        // 追加或替换数据
+        if (this.currentPage === 1) {
+          this.agentList = processedList;
+        } else {
+          this.agentList = [...this.agentList, ...processedList];
+        }
+        
+        // 更新分页信息
+        this.total = total;
+        this.hasMore = this.agentList.length < total;
+        this.currentPage++;
       } catch (error) {
         console.error('获取智能体列表失败', error);
         uni.showToast({
@@ -141,304 +181,283 @@ export default {
           icon: 'none'
         });
       } finally {
+        this.isLoading = false;
         uni.hideLoading();
+        
         // 如果是下拉刷新触发的，结束刷新状态
         if (this.refreshing) {
           this.refreshing = false;
         }
       }
     },
-    // 显示添加对话框
-    showAddDialog() {
-      this.addDialogVisible = true;
-      this.agentForm.agentName = '';
-    },
     
-    // 关闭添加对话框
-    closeAddDialog() {
-      this.addDialogVisible = false;
-    },
-    
-    // 创建智能体
-    createAgent() {
-      if (!this.agentForm.agentName) {
-        uni.showToast({
-          title: '请输入助手昵称',
-          icon: 'none'
-        });
-        return;
+    // 加载更多
+    loadMore() {
+      if (this.hasMore && !this.isLoading) {
+        this.getAgentList();
       }
-      
-      // 显示加载中
-      uni.showLoading({
-        title: '创建中...'
+    },
+    
+    // 查看智能体详情
+    viewAgentDetail(item) {
+      uni.navigateTo({
+        url: `/pages/creation/pub-agent-info?id=${item.id}`
       });
-      
-      // 调用创建API
-      agentApi.createAgent({agentName: this.agentForm.agentName}).then(res => {
+    },
+    
+    // 克隆智能体
+    async cloneAgent(item) {
+      try {
+        uni.showLoading({
+          title: '克隆中...',
+          mask: true
+        });
+        
+        const result = await agentApi.cloneAgent(item.id);
+        
         uni.hideLoading();
         uni.showToast({
-          title: '创建成功',
+          title: '克隆成功',
           icon: 'success'
         });
         
-        // 关闭对话框
-        this.closeAddDialog();
-        
-        // 刷新列表
-        this.getAgentList();
-      }).catch(error => {
+        // 克隆成功后跳转到我的智能体页面
+        setTimeout(() => {
+          uni.switchTab({
+            url: '/pages/agent/index'
+          });
+        }, 500);
+      } catch (error) {
         uni.hideLoading();
-        console.error('创建智能体失败', error);
+        console.error('克隆智能体失败', error);
         uni.showToast({
-          title: '创建失败',
-          icon: 'none'
+          title: '克隆失败: ' + (error.msg || '未知错误'),
+          icon: 'none',
+          duration: 3000
         });
-      });
-    },
-    // 跳转到配置页面
-    goToConfig(item) {
-      uni.navigateTo({
-        url: `/pages/agent/config?id=${item.id}`
-      });
-    },
-    // 跳转到设备管理页面
-    goToDeviceManage(item) {
-      uni.navigateTo({
-        url: `/pages/agent/device?id=${item.id}`
-      });
-    },
-    // 跳转到聊天记录页面
-    goToChatHistory(item) {
-      if (item.memModelId === 'Memory_nomem') {
-        uni.showToast({
-          title: '请先在角色配置中开启记忆',
-          icon: 'none'
-        });
-        return;
       }
-      uni.navigateTo({
-        url: `/pages/agent/chat-history?id=${item.id}&name=${encodeURIComponent(item.agentName)}`
+    },
+    
+    // 切换点赞状态
+    toggleLike(item) {
+      // 切换点赞状态
+      item.isLiked = !item.isLiked;
+      
+      // 更新点赞数
+      if (item.isLiked) {
+        item.likes++;
+        this.likedAgents[item.id] = true;
+      } else {
+        item.likes--;
+        delete this.likedAgents[item.id];
+      }
+      
+      // 保存点赞状态到本地存储
+      try {
+        uni.setStorageSync('likedAgents', JSON.stringify(this.likedAgents));
+      } catch (e) {
+        console.error('保存点赞状态失败', e);
+      }
+      
+      // 显示点赞反馈
+      uni.showToast({
+        title: item.isLiked ? '已点赞' : '已取消点赞',
+        icon: 'none'
       });
     },
-    // 确认删除
-    confirmDelete(item) {
-      uni.showModal({
-        title: '提示',
-        content: `确定要删除"${item.agentName}"吗？`,
-        success: async (res) => {
-          if (res.confirm) {
-            try {
-              await agentApi.deleteAgent(item.id);
-              uni.showToast({
-                title: '删除成功',
-                icon: 'success'
-              });
-              this.getAgentList();
-            } catch (error) {
-              console.error('删除失败', error);
-              uni.showToast({
-                title: '删除失败',
-                icon: 'none'
-              });
-            }
-          }
-        }
+    
+    // 分享智能体
+    shareAgent(item) {
+      uni.showShareMenu({
+        withShareTicket: true,
+        menus: ['shareAppMessage', 'shareTimeline']
+      });
+      
+      // 显示分享提示
+      uni.showToast({
+        title: '分享功能开发中',
+        icon: 'none'
       });
     },
+    
     // 下拉刷新
     onRefresh() {
       this.refreshing = true;
-      this.getAgentList();
+      this.resetAndRefresh();
     }
   }
 };
 </script>
 
 <style lang="scss">
-.agent-page {
+.creation-page {
   height: 100vh;
-  padding: 20rpx 20rpx 0 20rpx;
   background-color: #f8f8f8;
   position: relative;
   box-sizing: border-box;
-  overflow: hidden; /* 防止外部出现滚动条 */
-  
-  .agent-list {
-    height: calc(100vh - 20rpx); /* 减去padding和底部按钮区域的高度 */
-    overflow-y: auto; /* 确保内部滚动条正常工作 */
-    
-    .agent-empty {
-      padding: 100rpx 0;
-    }
-    
-    .agent-items {
-      .agent-item {
-        background-color: #fff;
-        border-radius: 20rpx;
-        padding: 30rpx;
-        margin-bottom: 30rpx;
-        box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-        
-        &__header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20rpx;
-        }
-        
-        &__avatar-name {
-          display: flex;
-          align-items: center;
-          gap: 20rpx;
-        }
-        
-        &__avatar {
-          width: 80rpx;
-          height: 80rpx;
-          border-radius: 50%;
-          background-color: #f0f0f0;
-          border: 2rpx solid #eaeaea;
-        }
-        
-        &__name {
-          font-size: 36rpx;
-          font-weight: bold;
-          color: #3d4566;
-        }
-        
-        &__actions {
-          display: flex;
-          align-items: center;
-        }
-        
-        &__content {
-          margin-bottom: 30rpx;
-          margin-left: -20rpx;
-        }
-        
-        &__info {
-          &-item {
-            display: flex;
-            margin-bottom: 16rpx;
-          }
-          
-          &-label {
-            font-size: 28rpx;
-            color: #666;
-            width: 180rpx;
-            text-align: right;
-          }
-          
-          &-value {
-            font-size: 28rpx;
-            color: #333;
-            font-weight: bold;
-          }
-        }
-        
-        &__prompt-box {
-          margin-top: 20rpx;
-          margin-bottom: 20rpx;
-          border-radius: 12rpx;
-          background-color: #f8f8f8;
-          padding: 16rpx;
-        }
-        
-        &__prompt-scroll {
-          max-height: 160rpx;
-        }
-        
-        &__prompt-text {
-          font-size: 26rpx;
-          color: #666;
-          line-height: 1.5;
-          word-break: break-all;
-          white-space: pre-wrap;
-        }
-        
-        &__button-group {
-          display: flex;
-          gap: 20rpx;
-          margin-bottom: 20rpx;
-        }
-        
-        &__button {
-          background-color: #e6ebff;
-          color: #5778ff;
-          font-size: 26rpx;
-          font-weight: 500;
-          padding: 10rpx 20rpx;
-          border-radius: 28rpx;
-          text-align: center;
-          
-          &--disabled {
-            background-color: #e6e6e6;
-            color: #999;
-          }
-        }
-        
-        &__footer {
-          display: flex;
-          justify-content: flex-end;
-        }
-        
-        &__time {
-          font-size: 24rpx;
-          color: #979db1;
-        }
-      }
-    }
-  }
-  
-  .agent-add {
-    position: fixed;
-    bottom: 40rpx; /* 微信小程序环境，调整为更接近tabbar的位置 */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-    
-    left: 0;
-    right: 0;
-    padding: 0 40rpx;
-    z-index: 10;
-    
-    /* 添加一个小动画效果 */
-    transition: bottom 0.3s;
+.creation-header {
+  padding: 30rpx;
+  background: linear-gradient(135deg, #5778ff, #6b8aff);
+  color: #fff;
+  
+  .creation-title {
+    font-size: 44rpx;
+    font-weight: bold;
+    margin-bottom: 10rpx;
+    display: block;
   }
   
-  /* 可选：为按钮添加阴影效果，增强视觉层次 */
-  .agent-add .u-button {
-    box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.1);
+  .creation-subtitle {
+    font-size: 28rpx;
+    opacity: 0.9;
   }
 }
 
-// 添加对话框样式
-.add-dialog {
-  width: 600rpx;
-  padding: 30rpx;
+.creation-list {
+  flex: 1;
+  padding: 20rpx 20rpx 0 20rpx;
+  height: 0;
   
-  &__header {
+  .creation-empty {
+    padding: 100rpx 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 30rpx;
+    justify-content: center;
   }
   
-  &__title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #3d4566;
-  }
-  
-  &__content {
-    margin-bottom: 30rpx;
-  }
-  
-  &__footer {
-    display: flex;
-    gap: 20rpx;
+  .loading-more {
+    text-align: center;
+    padding: 20rpx 0;
     
-    .u-button {
-      flex: 1;
+    text {
+      font-size: 26rpx;
+      color: #8a8a8a;
+    }
+  }
+  
+  .creation-items {
+    .creation-item {
+      background-color: #fff;
+      border-radius: 20rpx;
+      padding: 30rpx;
+      margin-bottom: 30rpx;
+      box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+      position: relative;
+      
+      &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20rpx;
+      }
+      
+      &__avatar-name {
+        display: flex;
+        align-items: center;
+        gap: 20rpx;
+      }
+      
+      &__avatar {
+        width: 80rpx;
+        height: 80rpx;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        border: 2rpx solid #eaeaea;
+      }
+      
+      &__name {
+        font-size: 36rpx;
+        font-weight: bold;
+        color: #3d4566;
+      }
+      
+      &__clone-btn {
+        width: 60rpx;
+        height: 60rpx;
+        border-radius: 50%;
+        background-color: #4cd964;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2rpx 8rpx rgba(76, 217, 100, 0.3);
+        margin-right: 20rpx;
+      }
+      
+      &__content {
+        margin-bottom: 20rpx;
+      }
+      
+      &__info {
+        &-item {
+          display: flex;
+          margin-bottom: 16rpx;
+        }
+        
+        &-label {
+          font-size: 28rpx;
+          color: #666;
+          // width: 120rpx;
+        }
+        
+        &-value {
+          font-size: 28rpx;
+          color: #333;
+          font-weight: bold;
+        }
+      }
+      
+      &__prompt-box {
+        margin-top: 20rpx;
+        margin-bottom: 20rpx;
+        border-radius: 12rpx;
+        background-color: #f8f8f8;
+        padding: 16rpx;
+      }
+      
+      &__prompt-scroll {
+        max-height: 160rpx;
+      }
+      
+      &__prompt-text {
+        font-size: 26rpx;
+        color: #666;
+        line-height: 1.5;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+      
+      &__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      &__stats {
+        display: flex;
+        gap: 30rpx;
+      }
+      
+      &__stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8rpx;
+      }
+      
+      &__stat-text {
+        font-size: 24rpx;
+        color: #979db1;
+      }
+      
+      &__time {
+        font-size: 24rpx;
+        color: #979db1;
+      }
     }
   }
 }
