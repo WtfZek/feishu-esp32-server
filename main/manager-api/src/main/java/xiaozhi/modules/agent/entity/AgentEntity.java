@@ -27,6 +27,9 @@ public class AgentEntity {
     @Schema(description = "智能体名称")
     private String agentName;
 
+    @Schema(description = "智能体头像")
+    private String agentAvatar;
+
     @Schema(description = "语音识别模型标识")
     private String asrModelId;
 
@@ -66,6 +69,9 @@ public class AgentEntity {
 
     @Schema(description = "交互语种")
     private String language;
+
+    @Schema(description = "是否已发布")
+    private Integer isPublished;
 
     @Schema(description = "排序")
     private Integer sort;

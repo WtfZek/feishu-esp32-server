@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import xiaozhi.common.page.PageData;
+import xiaozhi.common.user.UserDetail;
 import xiaozhi.common.utils.ConvertUtils;
 import xiaozhi.common.utils.Result;
 import xiaozhi.modules.agent.service.AgentTemplateService;
@@ -29,6 +30,7 @@ import xiaozhi.modules.model.dto.VoiceDTO;
 import xiaozhi.modules.model.entity.ModelConfigEntity;
 import xiaozhi.modules.model.service.ModelConfigService;
 import xiaozhi.modules.model.service.ModelProviderService;
+import xiaozhi.modules.security.user.SecurityUser;
 import xiaozhi.modules.timbre.service.TimbreService;
 
 @AllArgsConstructor
@@ -152,6 +154,15 @@ public class ModelController {
     public Result<List<VoiceDTO>> getVoiceList(@PathVariable String modelId,
             @RequestParam(required = false) String voiceName) {
         List<VoiceDTO> voiceList = timbreService.getVoiceNames(modelId, voiceName);
+        return new Result<List<VoiceDTO>>().ok(voiceList);
+    }
+
+    @GetMapping("/clone/voices")
+    @Operation(summary = "获取克隆音色")
+    @RequiresPermissions("sys:role:normal")
+    public Result<List<VoiceDTO>> getCloneVoiceList() {
+        UserDetail user = SecurityUser.getUser();
+        List<VoiceDTO> voiceList = timbreService.getCloneVoiceNames(user.getId());
         return new Result<List<VoiceDTO>>().ok(voiceList);
     }
 }

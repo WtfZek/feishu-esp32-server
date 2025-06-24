@@ -82,10 +82,10 @@ public class ShiroConfig {
         filterMap.put("/user/captcha", "anon");
         filterMap.put("/user/smsVerification", "anon");
         filterMap.put("/user/login", "anon");
-        filterMap.put("/user/login/noCaptcha", "anon");
+        filterMap.put("/user/login/no-captcha", "anon");
         filterMap.put("/user/pub-config", "anon");
         filterMap.put("/user/register", "anon");
-        filterMap.put("/user/register/noCaptcha", "anon");
+        filterMap.put("/user/register/no-captcha", "anon");
         filterMap.put("/user/retrieve-password", "anon");
         // 将config路径使用server服务过滤器
         filterMap.put("/config/**", "server");

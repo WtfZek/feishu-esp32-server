@@ -11,8 +11,8 @@ export function getServiceUrl() {
 export const API = {
   // 用户相关
   USER: {
-    LOGIN: '/user/login/noCaptcha',
-    REGISTER: '/user/register/noCaptcha',
+    LOGIN: '/user/login/no-captcha',
+    REGISTER: '/user/register/no-captcha',
     INFO: '/user/info',
     CAPTCHA: '/user/captcha',
     PUB_CONFIG: '/user/pub-config',

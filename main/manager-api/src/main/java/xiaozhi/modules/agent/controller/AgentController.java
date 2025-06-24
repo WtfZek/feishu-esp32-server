@@ -3,6 +3,7 @@ package xiaozhi.modules.agent.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -34,6 +35,7 @@ import xiaozhi.common.redis.RedisUtils;
 import xiaozhi.common.user.UserDetail;
 import xiaozhi.common.utils.Result;
 import xiaozhi.common.utils.ResultUtils;
+import xiaozhi.common.utils.ConvertUtils;
 import xiaozhi.modules.agent.dto.AgentChatHistoryDTO;
 import xiaozhi.modules.agent.dto.AgentChatSessionDTO;
 import xiaozhi.modules.agent.dto.AgentCreateDTO;
@@ -42,6 +44,7 @@ import xiaozhi.modules.agent.dto.AgentMemoryDTO;
 import xiaozhi.modules.agent.dto.AgentUpdateDTO;
 import xiaozhi.modules.agent.entity.AgentEntity;
 import xiaozhi.modules.agent.entity.AgentTemplateEntity;
+import xiaozhi.modules.agent.entity.AgentPluginMapping;
 import xiaozhi.modules.agent.service.AgentChatAudioService;
 import xiaozhi.modules.agent.service.AgentChatHistoryService;
 import xiaozhi.modules.agent.service.AgentPluginMappingService;
@@ -51,6 +54,8 @@ import xiaozhi.modules.agent.vo.AgentInfoVO;
 import xiaozhi.modules.device.entity.DeviceEntity;
 import xiaozhi.modules.device.service.DeviceService;
 import xiaozhi.modules.security.user.SecurityUser;
+import xiaozhi.modules.model.service.ModelConfigService;
+import xiaozhi.modules.timbre.service.TimbreService;
 
 @Tag(name = "智能体管理")
 @AllArgsConstructor
@@ -64,6 +69,8 @@ public class AgentController {
     private final AgentChatAudioService agentChatAudioService;
     private final AgentPluginMappingService agentPluginMappingService;
     private final RedisUtils redisUtils;
+    private final ModelConfigService modelConfigService;
+    private final TimbreService timbreService;
 
     @GetMapping("/list")
     @Operation(summary = "获取用户智能体列表")
@@ -71,6 +78,14 @@ public class AgentController {
     public Result<List<AgentDTO>> getUserAgents() {
         UserDetail user = SecurityUser.getUser();
         List<AgentDTO> agents = agentService.getUserAgents(user.getId());
+        return new Result<List<AgentDTO>>().ok(agents);
+    }
+
+    @GetMapping("/list/published")
+    @Operation(summary = "获取已发布的智能体列表")
+    @RequiresPermissions("sys:role:normal")
+    public Result<List<AgentDTO>> getPublishedAgents() {
+        List<AgentDTO> agents = agentService.getPublishedAgents();
         return new Result<List<AgentDTO>>().ok(agents);
     }
 
@@ -215,4 +230,54 @@ public class AgentController {
                 .body(audioData);
     }
 
+    @PostMapping("/copy/{id}")
+    @Operation(summary = "复制智能体配置")
+    @RequiresPermissions("sys:role:normal")
+    public Result<String> copy(@PathVariable String id) {
+        try {
+            // 获取原智能体信息
+            AgentInfoVO sourceAgent = agentService.getAgentById(id);
+            if (sourceAgent == null) {
+                return new Result<String>().error("智能体不存在");
+            }
+
+            // 创建新的智能体创建DTO
+            AgentCreateDTO agentCreateDTO = new AgentCreateDTO();
+            // 设置智能体名称为原名称加上"的副本"
+            agentCreateDTO.setAgentName(sourceAgent.getAgentName() + "的副本");
+
+            // 创建新的智能体（此时会使用当前用户作为creator）
+            String newAgentId = agentService.createAgent(agentCreateDTO);
+
+            // 更新新智能体的配置，复制原智能体的所有配置信息
+            AgentUpdateDTO updateDTO = ConvertUtils.sourceToTarget(sourceAgent, AgentUpdateDTO.class);
+            // 保留新名称
+            updateDTO.setAgentName(agentCreateDTO.getAgentName());
+            // 更新配置
+            agentService.updateAgentById(newAgentId, updateDTO);
+
+            // 复制插件配置
+            List<AgentPluginMapping> originalPlugins = sourceAgent.getFunctions();
+            if (originalPlugins != null && !originalPlugins.isEmpty()) {
+                // 使用流操作和对象复制，更优雅地复制插件配置
+                List<AgentPluginMapping> newPlugins = originalPlugins.stream()
+                        .map(originalPlugin -> {
+                            // 使用ConvertUtils复制对象，然后只修改需要变更的字段
+                            AgentPluginMapping newPlugin = ConvertUtils.sourceToTarget(originalPlugin, AgentPluginMapping.class);
+                            // 清除ID确保创建新记录，设置新的智能体ID
+                            newPlugin.setId(null);
+                            newPlugin.setAgentId(newAgentId);
+                            return newPlugin;
+                        })
+                        .toList();
+
+                // 保存新的插件映射
+                agentPluginMappingService.saveBatch(newPlugins);
+            }
+
+            return new Result<String>().ok(newAgentId);
+        } catch (Exception e) {
+            return new Result<String>().error("复制智能体失败: " + e.getMessage());
+        }
+    }
 }

@@ -11,6 +11,7 @@
         <result column="userId"    property="userId"/>
         <result column="agentCode" property="agentCode"/>
         <result column="agentName" property="agentName"/>
+        <result column="agentAvatar" property="agentAvatar"/>
         <result column="asrModelId" property="asrModelId"/>
         <result column="vadModelId" property="vadModelId"/>
         <result column="llmModelId" property="llmModelId"/>
@@ -27,6 +28,7 @@
         <result column="summaryMemory" property="summaryMemory"/>
         <result column="langCode" property="langCode"/>
         <result column="language" property="language"/>
+        <result column="isPublished" property="isPublished"/>
         <result column="sort" property="sort"/>
         <result column="creator" property="creator"/>
         <result column="createdAt" property="createdAt"/>
@@ -39,6 +41,7 @@
                a.user_id           AS userId,
                a.agent_code        AS agentCode,
                a.agent_name        AS agentName,
+               a.agent_avatar      AS agentAvatar,
                a.asr_model_id      AS asrModelId,
                a.vad_model_id      AS vadModelId,
                a.llm_model_id      AS llmModelId,
@@ -65,6 +68,7 @@
                a.summary_memory    AS summaryMemory,
                a.lang_code         AS langCode,
                a.language          AS language,
+               a.is_published      AS isPublished,
                a.sort,
                a.creator,
                a.created_at        AS createdAt,

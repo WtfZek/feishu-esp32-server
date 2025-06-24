@@ -26,6 +26,7 @@ import xiaozhi.common.utils.Result;
 import xiaozhi.common.validator.AssertUtils;
 import xiaozhi.common.validator.ValidatorUtils;
 import xiaozhi.modules.security.dto.LoginDTO;
+import xiaozhi.modules.security.dto.LoginNoCaptchaDTO;
 import xiaozhi.modules.security.dto.SmsVerificationDTO;
 import xiaozhi.modules.security.password.PasswordUtils;
 import xiaozhi.modules.security.service.CaptchaService;
@@ -101,9 +102,9 @@ public class LoginController {
         return sysUserTokenService.createToken(userDTO.getId());
     }
 
-    @PostMapping("/login/noCaptcha")
+    @PostMapping("/login/no-captcha")
     @Operation(summary = "无验证码登录")
-    public Result<TokenDTO> loginNoCaptcha(@RequestBody LoginDTO login) {
+    public Result<TokenDTO> loginNoCaptcha(@RequestBody LoginNoCaptchaDTO login) {
         // 按照用户名获取用户
         SysUserDTO userDTO = sysUserService.getByUsername(login.getUsername());
         // 判断用户是否存在
@@ -158,7 +159,7 @@ public class LoginController {
         return new Result<>();
     }
 
-    @PostMapping("/register/noCaptcha")
+    @PostMapping("/register/no-captcha")
     @Operation(summary = "无验证码注册")
     public Result<Void> registerNoCaptcha(@RequestBody LoginDTO login) {
         if (!sysUserService.getAllowUserRegister()) {

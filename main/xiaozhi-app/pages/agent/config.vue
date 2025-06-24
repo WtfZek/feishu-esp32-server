@@ -228,6 +228,7 @@ export default {
           summaryMemory: data.summaryMemory || '',
           langCode: data.langCode || 'zh',
           language: data.language || '中文',
+		  isPublish: data.isPublish || 0,
           sort: data.sort || 0,
           model: {
             ttsModelId: data.ttsModelId || '',

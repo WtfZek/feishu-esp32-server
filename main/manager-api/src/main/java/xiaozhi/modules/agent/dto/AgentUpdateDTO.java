@@ -23,6 +23,9 @@ public class AgentUpdateDTO implements Serializable {
     @Schema(description = "智能体名称", example = "客服助手", nullable = true)
     private String agentName;
 
+    @Schema(description = "智能体头像", example = "/static/avatar/feishu_user_avatar.jpeg", nullable = true)
+    private String agentAvatar;
+
     @Schema(description = "语音识别模型标识", example = "asr_model_02", nullable = true)
     private String asrModelId;
 
@@ -65,6 +68,9 @@ public class AgentUpdateDTO implements Serializable {
 
     @Schema(description = "交互语种", example = "中文", nullable = true)
     private String language;
+
+    @Schema(description = "是否已发布")
+    private Integer isPublished;
 
     @Schema(description = "排序", example = "1", nullable = true)
     private Integer sort;

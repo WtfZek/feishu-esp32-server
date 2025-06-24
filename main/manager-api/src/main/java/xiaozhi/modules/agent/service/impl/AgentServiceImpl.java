@@ -149,6 +149,41 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
     }
 
     @Override
+    public List<AgentDTO> getPublishedAgents() {
+        QueryWrapper<AgentEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_published", 1);
+        List<AgentEntity> agents = agentDao.selectList(wrapper);
+        return agents.stream().map(agent -> {
+            AgentDTO dto = new AgentDTO();
+            dto.setId(agent.getId());
+            dto.setAgentName(agent.getAgentName());
+            dto.setSystemPrompt(agent.getSystemPrompt());
+
+            // 获取 TTS 模型名称
+            dto.setTtsModelName(modelConfigService.getModelNameById(agent.getTtsModelId()));
+
+            // 获取 LLM 模型名称
+            dto.setLlmModelName(modelConfigService.getModelNameById(agent.getLlmModelId()));
+
+            // 获取 VLLM 模型名称
+            dto.setVllmModelName(modelConfigService.getModelNameById(agent.getVllmModelId()));
+
+            // 获取记忆模型名称
+            dto.setMemModelId(agent.getMemModelId());
+
+            // 获取 TTS 音色名称
+            dto.setTtsVoiceName(timbreModelService.getTimbreNameById(agent.getTtsVoiceId()));
+
+            // 获取智能体最近的最后连接时长
+            dto.setLastConnectedAt(deviceService.getLatestLastConnectionTime(agent.getId()));
+
+            // 获取设备数量
+            dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public Integer getDeviceCountByAgentId(String agentId) {
         if (StringUtils.isBlank(agentId)) {
             return 0;

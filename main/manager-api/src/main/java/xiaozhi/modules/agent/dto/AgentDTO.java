@@ -18,6 +18,9 @@ public class AgentDTO {
     @Schema(description = "智能体名称", example = "客服助手")
     private String agentName;
 
+    @Schema(description = "智能体头像", example = "/static/avatar/feishu_user_avatar.jpeg")
+    private String agentAvatar;
+
     @Schema(description = "语音合成模型名称", example = "tts_model_01")
     private String ttsModelName;
 
@@ -39,6 +42,9 @@ public class AgentDTO {
     @Schema(description = "总结记忆", example = "构建可生长的动态记忆网络，在有限空间内保留关键信息的同时，智能维护信息演变轨迹\n" +
             "根据对话记录，总结user的重要信息，以便在未来的对话中提供更个性化的服务", required = false)
     private String summaryMemory;
+
+    @Schema(description = "是否已发布", example = "1")
+    private Integer isPublished;
 
     @Schema(description = "最后连接时间", example = "2024-03-20 10:00:00")
     private Date lastConnectedAt;

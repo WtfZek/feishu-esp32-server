@@ -57,6 +57,8 @@ public interface TimbreService extends BaseService<TimbreEntity> {
 
     List<VoiceDTO> getVoiceNames(String ttsModelId, String voiceName);
 
+    List<VoiceDTO> getCloneVoiceNames(Long userId);
+
     /**
      * 根据ID获取音色名称
      * 

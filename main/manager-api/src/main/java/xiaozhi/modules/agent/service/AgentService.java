@@ -59,6 +59,13 @@ public interface AgentService extends BaseService<AgentEntity> {
     List<AgentDTO> getUserAgents(Long userId);
 
     /**
+     * 获取用户智能体列表
+     *
+     * @return 智能体列表
+     */
+    List<AgentDTO> getPublishedAgents();
+
+    /**
      * 根据智能体ID获取设备数量
      *
      * @param agentId 智能体ID

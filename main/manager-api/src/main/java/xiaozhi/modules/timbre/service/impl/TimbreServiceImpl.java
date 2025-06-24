@@ -20,7 +20,11 @@ import xiaozhi.common.redis.RedisKeys;
 import xiaozhi.common.redis.RedisUtils;
 import xiaozhi.common.service.impl.BaseServiceImpl;
 import xiaozhi.common.utils.ConvertUtils;
+import xiaozhi.modules.device.controller.OTAController;
+import xiaozhi.modules.model.dao.ModelConfigDao;
+import xiaozhi.modules.model.dto.ModelConfigDTO;
 import xiaozhi.modules.model.dto.VoiceDTO;
+import xiaozhi.modules.model.entity.ModelConfigEntity;
 import xiaozhi.modules.timbre.dao.TimbreDao;
 import xiaozhi.modules.timbre.dto.TimbreDataDTO;
 import xiaozhi.modules.timbre.dto.TimbrePageDTO;
@@ -38,6 +42,7 @@ import xiaozhi.modules.timbre.vo.TimbreDetailsVO;
 @Service
 public class TimbreServiceImpl extends BaseServiceImpl<TimbreDao, TimbreEntity> implements TimbreService {
 
+    private final ModelConfigDao modelConfigDao;
     private final TimbreDao timbreDao;
     private final RedisUtils redisUtils;
 
@@ -124,6 +129,19 @@ public class TimbreServiceImpl extends BaseServiceImpl<TimbreDao, TimbreEntity> 
         if (CollectionUtil.isEmpty(timbreEntities)) {
             return null;
         }
+
+        return ConvertUtils.sourceToTarget(timbreEntities, VoiceDTO.class);
+    }
+
+    // 根据用户查询自己的音色列表，包含预设音色
+    @Override
+    public List<VoiceDTO> getCloneVoiceNames(Long userId) {
+
+        QueryWrapper<TimbreEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper
+                .eq("creator", userId);
+
+        List<TimbreEntity> timbreEntities = timbreDao.selectList(queryWrapper);
 
         return ConvertUtils.sourceToTarget(timbreEntities, VoiceDTO.class);
     }
