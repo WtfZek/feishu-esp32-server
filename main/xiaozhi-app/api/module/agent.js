@@ -16,11 +16,11 @@ export default {
   /**
    * 获取已发布的智能体列表
    * @param {Object} params 分页参数 {page, limit}
-   * @param {Object} filter 筛选条件
+   * @param {Object} filterDto 筛选条件
    * @returns {Promise} Promise对象
    */
-  getPublishedAgentList(params = {}, filter = null) {
-    return http(API.AGENT.LIST_PUBLISHED, filter, 'POST', { params });
+  getPublishedAgentList(params = {}, filterDto = null) {
+    return http(API.AGENT.LIST_PUBLISHED, filterDto, 'POST', { params });
   },
   
   /**

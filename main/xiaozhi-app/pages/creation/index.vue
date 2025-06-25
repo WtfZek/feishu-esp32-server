@@ -6,6 +6,30 @@
       <text class="creation-subtitle">共创和谐社区，共享优质智能助手</text>
     </view>
     
+    <!-- 搜索区域 -->
+    <view class="creation-search">
+      <view class="creation-search__wrapper">
+        <view class="creation-search__dropdown" @click="showVoiceSelector = true">
+          <text class="creation-search__dropdown-text">{{ selectedVoice || '音色' }}</text>
+          <u-icon name="arrow-down-fill" size="24rpx" color="#666"></u-icon>
+        </view>
+        <view class="creation-search__divider"></view>
+        <input 
+          class="creation-search__input" 
+          v-model="searchKeyword" 
+          placeholder="根据音色搜索智能助手" 
+          confirm-type="search"
+          @confirm="handleSearch"
+        />
+        <view class="creation-search__clear" v-if="searchKeyword || selectedVoice" @click="clearSearch">
+          <u-icon name="close-circle-fill" size="36rpx" color="#999"></u-icon>
+        </view>
+        <view class="creation-search__icon" @click="handleSearch">
+          <u-icon name="search" size="40rpx" color="#5778ff"></u-icon>
+        </view>
+      </view>
+    </view>
+    
     <scroll-view 
       class="creation-list"
       scroll-y
@@ -20,8 +44,8 @@
         </u-empty>
       </view>
       <view class="creation-items" v-else>
-        <view class="creation-item" v-for="(item, index) in agentList" :key="index">
-          <view class="creation-item__header" @click="viewAgentDetail(item)">
+        <view class="creation-item" v-for="(item, index) in agentList" :key="index" @click="viewAgentDetail(item)">
+          <view class="creation-item__header">
             <view class="creation-item__avatar-name">
               <image class="creation-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
               <text class="creation-item__name">{{ item.agentName }}</text>
@@ -30,7 +54,7 @@
               <u-icon name="plus" color="#fff" size="32rpx"></u-icon>
             </view>
           </view>
-          <view class="creation-item__content" @click="viewAgentDetail(item)">
+          <view class="creation-item__content">
             <view class="creation-item__info">
               <view class="creation-item__info-item">
                 <text class="creation-item__info-label">音色模型：</text>
@@ -72,11 +96,41 @@
         <view style="height: 30rpx;"></view>
       </view>
     </scroll-view>
+    
+    <!-- 音色选择弹出层 -->
+    <view v-if="showVoiceSelector" class="custom-popup-mask" @click="showVoiceSelector = false">
+      <view class="custom-popup-content" @click.stop>
+        <view class="voice-selector">
+          <view class="voice-selector__header">
+            <text class="voice-selector__title">选择音色</text>
+            <view class="voice-selector__close" @click="showVoiceSelector = false">
+              <u-icon name="close" size="30rpx" color="#666"></u-icon>
+            </view>
+          </view>
+          <view class="voice-selector__body">
+            <view class="voice-selector__item" @click="selectVoice('')">
+              <text class="voice-selector__item-text">全部音色</text>
+              <u-icon v-if="selectedVoice === ''" name="checkmark" color="#5778ff" size="32rpx"></u-icon>
+            </view>
+            <view 
+              class="voice-selector__item" 
+              v-for="(item, index) in voiceList" 
+              :key="index"
+              @click="selectVoice(item.name)"
+            >
+              <text class="voice-selector__item-text">{{ item.name }}</text>
+              <u-icon v-if="selectedVoice === item.name" name="checkmark" color="#5778ff" size="32rpx"></u-icon>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
 import agentApi from '@/api/module/agent';
+import modelApi from '@/api/module/model';
 
 export default {
   data() {
@@ -90,7 +144,18 @@ export default {
       pageSize: 5,
       total: 0,
       hasMore: true,
-      isLoading: false
+      isLoading: false,
+      
+      // 搜索相关
+      searchKeyword: '',
+      selectedVoice: '',
+      showVoiceSelector: false,
+      voiceList: [],
+      
+      // 筛选条件
+      filter: {
+        ttsVoiceName: ''
+      }
     };
   },
   onLoad() {
@@ -104,6 +169,10 @@ export default {
       console.error('获取点赞状态失败', e);
     }
     
+    // 获取音色列表
+    this.getVoiceList();
+    
+    // 获取智能体列表
     this.getAgentList();
   },
   onShow() {
@@ -115,6 +184,34 @@ export default {
     uni.stopPullDownRefresh();
   },
   methods: {
+    // 获取音色列表
+    async getVoiceList() {
+      try {
+        // 为简化，这里直接获取TTS模型的音色列表
+        // 实际使用时可能需要先获取默认TTS模型ID
+        const res = await modelApi.getVoiceList('TTS_HuoshanDoubleStreamTTS');
+        if (res && Array.isArray(res)) {
+          this.voiceList = res;
+        }
+      } catch (error) {
+        console.error('获取音色列表失败', error);
+      }
+    },
+    
+    // 选择音色
+    selectVoice(voice) {
+      this.selectedVoice = voice;
+      this.filter.ttsVoiceName = voice;
+      this.showVoiceSelector = false;
+      this.resetAndRefresh();
+    },
+    
+    // 搜索处理
+    handleSearch() {
+      this.filter.ttsVoiceName = this.selectedVoice || this.searchKeyword;
+      this.resetAndRefresh();
+    },
+    
     // 重置数据并刷新
     resetAndRefresh() {
       this.currentPage = 1;
@@ -143,13 +240,16 @@ export default {
           limit: this.pageSize
         };
         
-        // 构建筛选条件（如果有）
-        // 如果有筛选需求，可以在这里添加筛选条件
-        // const filter = { ttsVoiceName: '湾湾小何' };
-        const filter = null;
+        // 构建筛选条件
+        const filterDto = { ...this.filter };
+        
+        // 如果筛选条件为空，则不传
+        if (!filterDto.ttsVoiceName) {
+          delete filterDto.ttsVoiceName;
+        }
         
         // 调用API获取数据
-        const res = await agentApi.getPublishedAgentList(params, filter);
+        const res = await agentApi.getPublishedAgentList(params, Object.keys(filterDto).length > 0 ? filterDto : null);
         
         // 处理后端返回的分页数据
         const { list, total } = res;
@@ -284,6 +384,14 @@ export default {
     onRefresh() {
       this.refreshing = true;
       this.resetAndRefresh();
+    },
+    
+    // 清除搜索
+    clearSearch() {
+      this.searchKeyword = '';
+      this.selectedVoice = '';
+      this.filter.ttsVoiceName = '';
+      this.resetAndRefresh();
     }
   }
 };
@@ -304,6 +412,7 @@ export default {
   padding: 30rpx;
   background: linear-gradient(135deg, #5778ff, #6b8aff);
   color: #fff;
+  flex-shrink: 0;
   
   .creation-title {
     font-size: 44rpx;
@@ -318,10 +427,129 @@ export default {
   }
 }
 
+/* 搜索区域样式 */
+.creation-search {
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  
+  &__wrapper {
+    height: 72rpx;
+    background-color: #f5f7fa;
+    border-radius: 36rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 20rpx;
+  }
+  
+  &__dropdown {
+    display: flex;
+    align-items: center;
+    padding: 0 10rpx;
+    height: 100%;
+    
+    &-text {
+      font-size: 28rpx;
+      color: #333;
+      margin-right: 6rpx;
+    }
+  }
+  
+  &__divider {
+    width: 2rpx;
+    height: 36rpx;
+    background-color: #ddd;
+    margin: 0 16rpx;
+  }
+  
+  &__input {
+    flex: 1;
+    height: 100%;
+    font-size: 28rpx;
+    color: #333;
+  }
+  
+  &__clear {
+    padding: 0 10rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  &__icon {
+    padding: 0 10rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* 音色选择器样式 */
+.voice-selector {
+  background-color: #fff;
+  padding-bottom: 30rpx;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 100;
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1rpx solid #eee;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 10;
+  }
+  
+  &__title {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  &__close {
+    padding: 10rpx;
+    height: 50rpx;
+    width: 50rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  &__body {
+    max-height: calc(70vh - 100rpx);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1rpx solid #f5f5f5;
+    
+    &-text {
+      font-size: 28rpx;
+      color: #333;
+    }
+  }
+}
+
 .creation-list {
   flex: 1;
   padding: 20rpx 20rpx 0 20rpx;
   height: 0;
+  overflow: hidden;
   
   .creation-empty {
     padding: 100rpx 0;
@@ -459,6 +687,36 @@ export default {
         color: #979db1;
       }
     }
+  }
+}
+
+.custom-popup-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.custom-popup-content {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 </style> 

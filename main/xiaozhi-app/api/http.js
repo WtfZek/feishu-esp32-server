@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'development') {
 	baseUrl = 'http://192.168.3.188:8002/xiaozhi';
 } else {
 	// 生产环境使用实际API地址
-	baseUrl = 'http://xiaofei.ai-tulip.site/xiaozhi';
+	baseUrl = 'http://192.168.3.188:8002/xiaozhi';
 }
 
 /**

@@ -276,8 +276,8 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
             
             // 如果ttsVoiceName不为空，添加音色条件
             if (StringUtils.isNotBlank(filterDto.getTtsVoiceName())) {
-                wrapper.inSql("tts_voice_id",
-                        "SELECT id FROM ai_tts_voice WHERE name LIKE concat('%', #{filterDto.ttsVoiceName}, '%')");
+                wrapper.exists("SELECT 1 FROM ai_tts_voice v WHERE v.id = ai_agent.tts_voice_id AND v.name LIKE {0}",
+                        "%" + filterDto.getTtsVoiceName() + "%");
             }
             
             // 如果systemPrompt不为空，添加角色设定模糊查询条件
