@@ -56,7 +56,8 @@ export const API = {
     VOICES: '/models/{id}/voices',
     CLONE_VOICES: '/models/clone/voices',
     ENABLE: '/models/enable/',
-    DEFAULT: '/models/default/'
+    DEFAULT: '/models/default/',
+    VOICE_CLONE: '/models/voice-clone'
   },
   
   // OTA相关
@@ -64,11 +65,24 @@ export const API = {
     LIST: '/otaMag',
     DETAIL: '/otaMag/',
     CREATE: '/otaMag',
-    UPDATE: '/otaMag/',
-    DELETE: '/otaMag/',
+    UPDATE: '/otaMag',
+    DELETE: '/otaMag',
     UPLOAD: '/otaMag/upload',
     DOWNLOAD_URL: '/otaMag/getDownloadUrl/',
     DOWNLOAD: '/otaMag/download/'
+  },
+
+  // 支付相关
+  PAY: {
+    CREATE_ORDER: '/wechat/pay/create',
+    NOTIFY: '/wechat/pay/notify',
+    CREATE_CLONE_ORDER: '/wechat/pay/voice-clone/order',
+    GET_ORDER_STATUS: '/wechat/pay/voice-clone/order/status/{orderNo}'
+  },
+  
+  // 微信相关
+  WECHAT: {
+    GET_OPENID: '/wechat/openid'
   },
   
   // 系统相关

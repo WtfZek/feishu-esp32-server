@@ -60,30 +60,70 @@
             </u-form-item>
           </view>
           
-          <u-form-item label="密码" prop="password" labelWidth="160rpx">
-            <u-input 
-              v-model="form.password" 
-              type="password" 
-              placeholder="请输入密码"
-              prefixIcon="lock"
-              border="bottom"
-              clearable
-              :password="!showPassword"
-              suffixIcon="eye"
-              @suffixIconClick="showPassword = !showPassword"
-            ></u-input>
+          <u-form-item v-if="renderPasswordInput" label="密码" prop="password" labelWidth="160rpx">
+            <view class="password-input-container">
+              <u-input 
+                ref="passwordInput"
+                v-model="form.password" 
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="请输入密码"
+                prefixIcon="lock"
+                border="bottom"
+                :password="!showPassword"
+              ></u-input>
+              <view class="eye-icon" @tap="togglePasswordVisibility">
+                <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+              </view>
+            </view>
+          </u-form-item>
+          <u-form-item v-if="!renderPasswordInput" label="密码" prop="password" labelWidth="160rpx">
+            <view class="password-input-container">
+              <u-input 
+                ref="passwordInput"
+                v-model="form.password" 
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="请输入密码"
+                prefixIcon="lock"
+                border="bottom"
+                :password="!showPassword"
+              ></u-input>
+              <view class="eye-icon" @tap="togglePasswordVisibility">
+                <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+              </view>
+            </view>
           </u-form-item>
           
-          <u-form-item label="确认密码" prop="confirmPassword" labelWidth="160rpx">
-            <u-input 
-              v-model="form.confirmPassword" 
-              type="password" 
-              placeholder="请再次输入密码"
-              prefixIcon="lock"
-              border="bottom"
-              clearable
-              :password="!showPassword"
-            ></u-input>
+          <u-form-item v-if="renderConfirmInput" label="确认密码" prop="confirmPassword" labelWidth="160rpx">
+            <view class="password-input-container">
+              <u-input 
+                ref="confirmPasswordInput"
+                v-model="form.confirmPassword" 
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="请再次输入密码"
+                prefixIcon="lock"
+                border="bottom"
+                :password="!showPassword"
+              ></u-input>
+              <view class="eye-icon" @tap="togglePasswordVisibility">
+                <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+              </view>
+            </view>
+          </u-form-item>
+          <u-form-item v-if="!renderConfirmInput" label="确认密码" prop="confirmPassword" labelWidth="160rpx">
+            <view class="password-input-container">
+              <u-input 
+                ref="confirmPasswordInput"
+                v-model="form.confirmPassword" 
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="请再次输入密码"
+                prefixIcon="lock"
+                border="bottom"
+                :password="!showPassword"
+              ></u-input>
+              <view class="eye-icon" @tap="togglePasswordVisibility">
+                <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+              </view>
+            </view>
           </u-form-item>
           
           <!-- 图形验证码 -->
@@ -190,7 +230,9 @@ export default {
       countdown: 0,
       timer: null,
       // 添加来源页面记录
-      fromLogin: false
+      fromLogin: false,
+      renderPasswordInput: true,
+      renderConfirmInput: true
     }
   },
   onLoad(options) {
@@ -401,6 +443,36 @@ export default {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
+    },
+
+    // 切换密码显示
+    togglePasswordVisibility() {
+      // 更新状态
+      this.showPassword = !this.showPassword;
+      
+      // 强制重建组件
+      this.renderPasswordInput = false;
+      this.renderConfirmInput = false;
+      
+      // 缓存密码值
+      const password = this.form.password;
+      const confirmPassword = this.form.confirmPassword;
+      
+      // 强制清空密码
+      this.form.password = '';
+      this.form.confirmPassword = '';
+      
+      // 延时恢复组件
+      setTimeout(() => {
+        this.renderPasswordInput = true;
+        this.renderConfirmInput = true;
+        
+        // 延时恢复值
+        setTimeout(() => {
+          this.form.password = password;
+          this.form.confirmPassword = confirmPassword;
+        }, 50);
+      }, 50);
     }
   },
   beforeDestroy() {
@@ -508,6 +580,24 @@ export default {
   
   .agreement-link {
     color: #5778ff;
+  }
+}
+
+// 添加密码输入框相关样式
+.password-input-container {
+  position: relative;
+  
+  .eye-icon {
+    position: absolute;
+    right: 20rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 60rpx;
+    height: 60rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

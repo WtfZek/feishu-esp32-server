@@ -1,0 +1,37 @@
+wechat:
+  pay:
+    # 是否启用微信支付功能
+    enabled: true
+    # 微信支付配置
+    app-id: wxfad1634bffaa3ccb  # 小程序/公众号APPID
+    mch-id: 1712507040          # 商户号
+    # 商户API私钥路径 (请根据实际情况修改)
+    private-key-path: classpath:cert/apiclient_key.pem
+    # 商户API证书序列号
+    mch-serial-no: 22B763EF6A64C705BAED00796EBBFE80CA7D3A37
+    # API v3密钥
+    api-v3-key: iiBxlnwaa2xcabc1dkqTbD1Ll0qgE31D
+    # 微信支付回调通知地址 (请根据实际情况修改)
+    notify-url: https://192.168.3.188:8002/api/wxpay/notify
+    # 微信支付平台证书文件路径 (请根据实际情况修改)
+    wechat-pay-certificate-path: classpath:cert/wechatpay_certificate.pem
+    # 应用URL，用于H5支付场景信息
+    app-url: https://192.168.3.188:5173/
+    # APPID配置
+    app-id-config:
+      # 公众号APPID
+      mp: wxfad1634bffaa3ccb
+      # 小程序APPID
+      miniapp: wxfad1634bffaa3ccb
+      # APP APPID
+      app: __UNI__0AD6881
+    # 交易类型定义
+    trade-types:
+      # 扫码支付
+      native: NATIVE
+      # 小程序支付
+      jsapi: JSAPI
+      # APP支付
+      app: APP
+  appid: wxfad1634bffaa3ccb  # 小程序appid，与支付配置中的miniapp保持一致
+  secret: b814375b7d3620fa202773dd2ce9b8f6  # 小程序密钥

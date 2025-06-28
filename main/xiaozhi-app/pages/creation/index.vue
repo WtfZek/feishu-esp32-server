@@ -40,7 +40,7 @@
     >
       <view class="creation-empty" v-if="agentList.length === 0">
         <u-empty mode="list" icon="">
-          <text slot="message">暂无已发布的智能助手</text>
+          <!-- <text slot="message">暂无已发布的智能助手</text> -->
         </u-empty>
       </view>
       <view class="creation-items" v-else>
@@ -119,7 +119,12 @@
               @click="selectVoice(item.name)"
             >
               <text class="voice-selector__item-text">{{ item.name }}</text>
-              <u-icon v-if="selectedVoice === item.name" name="checkmark" color="#5778ff" size="32rpx"></u-icon>
+              <view class="voice-selector__item-actions">
+                <u-icon v-if="selectedVoice === item.name" name="checkmark" color="#5778ff" size="32rpx"></u-icon>
+                <view class="voice-selector__item-play" @click.stop="playVoiceDemo(item)">
+                  <u-icon :name="playingVoiceId === item.id ? 'pause-circle' : 'play-circle'" size="40rpx" color="#1890ff"></u-icon>
+                </view>
+              </view>
             </view>
           </view>
         </view>
@@ -155,7 +160,11 @@ export default {
       // 筛选条件
       filter: {
         ttsVoiceName: ''
-      }
+      },
+      
+      // 音频播放相关
+      playingVoiceId: null,
+      audioContext: null
     };
   },
   onLoad() {
@@ -168,6 +177,20 @@ export default {
     } catch (e) {
       console.error('获取点赞状态失败', e);
     }
+    
+    // 初始化音频上下文
+    this.audioContext = uni.createInnerAudioContext();
+    this.audioContext.onEnded(() => {
+      this.playingVoiceId = null;
+    });
+    this.audioContext.onError((res) => {
+      console.error('音频播放错误', res);
+      uni.showToast({
+        title: '音频播放失败',
+        icon: 'none'
+      });
+      this.playingVoiceId = null;
+    });
     
     // 获取音色列表
     this.getVoiceList();
@@ -182,6 +205,12 @@ export default {
   onPullDownRefresh() {
     this.resetAndRefresh();
     uni.stopPullDownRefresh();
+  },
+  onUnload() {
+    // 页面卸载时释放音频资源
+    if (this.audioContext) {
+      this.audioContext.destroy();
+    }
   },
   methods: {
     // 获取音色列表
@@ -392,6 +421,34 @@ export default {
       this.selectedVoice = '';
       this.filter.ttsVoiceName = '';
       this.resetAndRefresh();
+    },
+    
+    // 播放音色示例音频
+    playVoiceDemo(voice) {
+      if (!voice.voiceDemo) {
+        uni.showToast({
+          title: '该音色暂无示例音频',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      if (this.playingVoiceId === voice.id) {
+        // 如果正在播放当前音频，则停止播放
+        this.audioContext.stop();
+        this.playingVoiceId = null;
+        return;
+      }
+      
+      // 停止当前正在播放的音频
+      if (this.audioContext) {
+        this.audioContext.stop();
+      }
+      
+      // 播放新的音频
+      this.playingVoiceId = voice.id;
+      this.audioContext.src = voice.voiceDemo;
+      this.audioContext.play();
     }
   }
 };
@@ -491,7 +548,7 @@ export default {
 .voice-selector {
   background-color: #fff;
   padding-bottom: 30rpx;
-  max-height: 70vh;
+  max-height: 45vh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -541,6 +598,19 @@ export default {
     &-text {
       font-size: 28rpx;
       color: #333;
+    }
+    
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+    }
+    
+    &-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
   }
 }

@@ -15,7 +15,7 @@ server:
 spring:
   # 环境 dev|test|prod
   profiles:
-    active: dev
+    active: dev,wechat
   messages:
     encoding: UTF-8
     basename: i18n/messages
@@ -26,6 +26,10 @@ spring:
       enabled: true
   main:
     allow-bean-definition-overriding: true
+  # 禁用Spring Cloud兼容性检查
+  cloud:
+    compatibility-verifier:
+      enabled: false
 
 knife4j:
   enable: true
@@ -64,3 +68,56 @@ mybatis-plus:
     prefix:
     blobType: BLOB
     boolValue: TRUE
+
+# forest api
+forest:
+  max-connections: 1000        # 连接池最大连接数
+  connect-timeout: 3000        # 连接超时时间，单位为毫秒
+  read-timeout: 3000           # 数据读取超时时间，单位为毫秒
+
+# WebClient配置
+feign:
+  voice-clone:
+    url: http://127.0.0.1:8008
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: https://oss-cn-shanghai.aliyuncs.com
+    accessKeyId: ${ALIYUN_ACCESS_KEY_ID:your-access-key-id}
+    accessKeySecret: ${ALIYUN_ACCESS_KEY_SECRET:your-access-key-secret}
+    bucketName: ${ALIYUN_BUCKET_NAME:jh-vioce}
+    domain: ${ALIYUN_OSS_DOMAIN:https://jh-vioce.oss-cn-shanghai.aliyuncs.com}
+    voice-clone-dir: voice-clone
+    voice-demo-dir: voice-demo
+
+# 微信支付配置
+wechat:
+  pay:
+    # 微信支付应用ID
+    app-id: wx9999999999999999
+    # 微信支付商户号
+    mch-id: 1900000109
+    # 微信支付商户API证书序列号
+    mch-serial-no: 22B763EF6A64C705BAED00796EBBFE80CA7D3A37
+    # 微信支付商户私钥文件路径
+    private-key-path: classpath:cert/apiclient_key.pem
+    # API V3密钥
+    api-v3-key: Abcdefg1234567890Abcdefg1234567890
+    # 支付结果通知地址
+    notify-url: https://192.168.3.188:8002/xiaozhi/pay/wxpay/notify
+    # 微信支付平台证书文件路径
+    wechatPayCertificatePath: classpath:cert/wechatpay_certificate.pem
+    # 应用URL，用于H5支付场景信息
+    app-url: https://192.168.3.188:5173/
+    # APPID配置
+    app-id-config:
+      # 公众号APPID
+      mp: wxfad1634bffaa3ccb
+      # 小程序APPID
+      miniapp: wxfad1634bffaa3ccb
+      # APP APPID
+      app: wx7777777777777777
+    # 小程序配置
+    appid: wxfad1634bffaa3ccb  # 小程序appid，与支付配置中的miniapp保持一致
+    secret: b814375b7d3620fa202773dd2ce9b8f6  # 小程序密钥

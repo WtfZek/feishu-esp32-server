@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * RestTemplate配置
+ * RestTemplate配置类
  */
 @Configuration
 public class RestTemplateConfig {

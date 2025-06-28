@@ -8,9 +8,11 @@
       @refresherrefresh="onRefresh"
     >
       <view class="agent-empty" v-if="agentList.length === 0">
-        <!-- <u-empty mode="list" icon="https://cdn.uviewui.com/uview/empty/list.png"> -->
-
-        <!-- </u-empty> -->
+        <u-empty mode="list" icon="">
+          <view class="agent-empty__text">
+            请点击下方按钮创建智能体
+          </view>
+        </u-empty>
       </view>
       <view class="agent-items" v-else>
         <view class="agent-item" v-for="(item, index) in agentList" :key="index">
@@ -313,6 +315,12 @@ export default {
     
     .agent-empty {
       padding: 100rpx 0;
+
+      &__text {
+        font-size: 28rpx;
+        color: #c0c4cc;
+        margin-top: 20rpx;
+      }
     }
     
     .agent-items {

@@ -4,49 +4,100 @@
     <view class="change-password-content">
       <view class="form-container">
         <u-form :model="form" ref="uForm" :errorType="errorType" labelPosition="top" :borderBottom="false">
-          <u-form-item label="原密码：" prop="oldPassword" labelWidth="160rpx" :required="true">
+          <u-form-item v-if="renderOldPassword" label="原密码：" prop="oldPassword" labelWidth="160rpx" :required="true">
             <u-input 
+              ref="oldPasswordInput"
               v-model="form.oldPassword" 
-              type="password" 
+              :type="showOldPassword ? 'text' : 'password'"
               placeholder="请输入原密码" 
               :password="!showOldPassword"
               :class="{'input-error': errors.oldPassword}"
               :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
-                <u-icon name="eye" size="40rpx" color="#979db1" @click="showOldPassword = !showOldPassword"></u-icon>
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleOldPassword"></u-icon>
+              </template>
+            </u-input>
+            <view v-if="errors.oldPassword" class="error-message">{{errors.oldPassword}}</view>
+          </u-form-item>
+          <u-form-item v-if="!renderOldPassword" label="原密码：" prop="oldPassword" labelWidth="160rpx" :required="true">
+            <u-input 
+              ref="oldPasswordInput"
+              v-model="form.oldPassword" 
+              :type="showOldPassword ? 'text' : 'password'"
+              placeholder="请输入原密码" 
+              :password="!showOldPassword"
+              :class="{'input-error': errors.oldPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
+            >
+              <template slot="suffix">
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleOldPassword"></u-icon>
               </template>
             </u-input>
             <view v-if="errors.oldPassword" class="error-message">{{errors.oldPassword}}</view>
           </u-form-item>
           
-          <u-form-item label="新密码：" prop="newPassword" labelWidth="160rpx" :required="true">
+          <u-form-item v-if="renderNewPassword" label="新密码：" prop="newPassword" labelWidth="160rpx" :required="true">
             <u-input 
+              ref="newPasswordInput"
               v-model="form.newPassword" 
-              type="password" 
+              :type="showNewPassword ? 'text' : 'password'"
               placeholder="请输入新密码" 
               :password="!showNewPassword"
               :class="{'input-error': errors.newPassword}"
               :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
-                <u-icon name="eye" size="40rpx" color="#979db1" @click="showNewPassword = !showNewPassword"></u-icon>
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleNewPassword"></u-icon>
+              </template>
+            </u-input>
+            <view v-if="errors.newPassword" class="error-message">{{errors.newPassword}}</view>
+          </u-form-item>
+          <u-form-item v-if="!renderNewPassword" label="新密码：" prop="newPassword" labelWidth="160rpx" :required="true">
+            <u-input 
+              ref="newPasswordInput"
+              v-model="form.newPassword" 
+              :type="showNewPassword ? 'text' : 'password'"
+              placeholder="请输入新密码" 
+              :password="!showNewPassword"
+              :class="{'input-error': errors.newPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
+            >
+              <template slot="suffix">
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleNewPassword"></u-icon>
               </template>
             </u-input>
             <view v-if="errors.newPassword" class="error-message">{{errors.newPassword}}</view>
           </u-form-item>
           
-          <u-form-item label="确认密码：" prop="confirmPassword" labelWidth="160rpx" :required="true">
+          <u-form-item v-if="renderConfirmPassword" label="确认密码：" prop="confirmPassword" labelWidth="160rpx" :required="true">
             <u-input 
+              ref="confirmPasswordInput"
               v-model="form.confirmPassword" 
-              type="password" 
+              :type="showConfirmPassword ? 'text' : 'password'"
               placeholder="请再次输入新密码" 
               :password="!showConfirmPassword"
               :class="{'input-error': errors.confirmPassword}"
               :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
             >
               <template slot="suffix">
-                <u-icon name="eye" size="40rpx" color="#979db1" @click="showConfirmPassword = !showConfirmPassword"></u-icon>
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleConfirmPassword"></u-icon>
+              </template>
+            </u-input>
+            <view v-if="errors.confirmPassword" class="error-message">{{errors.confirmPassword}}</view>
+          </u-form-item>
+          <u-form-item v-if="!renderConfirmPassword" label="确认密码：" prop="confirmPassword" labelWidth="160rpx" :required="true">
+            <u-input 
+              ref="confirmPasswordInput"
+              v-model="form.confirmPassword" 
+              :type="showConfirmPassword ? 'text' : 'password'"
+              placeholder="请再次输入新密码" 
+              :password="!showConfirmPassword"
+              :class="{'input-error': errors.confirmPassword}"
+              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
+            >
+              <template slot="suffix">
+                <u-icon name="eye" size="44rpx" color="#5778ff" @click="toggleConfirmPassword"></u-icon>
               </template>
             </u-input>
             <view v-if="errors.confirmPassword" class="error-message">{{errors.confirmPassword}}</view>
@@ -95,7 +146,10 @@ export default {
         oldPassword: 'bottom',
         newPassword: 'bottom',
         confirmPassword: 'bottom'
-      }
+      },
+      renderOldPassword: true,
+      renderNewPassword: true,
+      renderConfirmPassword: true
     }
   },
   methods: {
@@ -219,6 +273,54 @@ export default {
     // 返回上一页
     goBack() {
       uni.navigateBack();
+    },
+
+    toggleOldPassword() {
+      this.showOldPassword = !this.showOldPassword;
+      
+      // 强制重建组件
+      this.renderOldPassword = false;
+      const oldPassword = this.form.oldPassword;
+      this.form.oldPassword = '';
+      
+      setTimeout(() => {
+        this.renderOldPassword = true;
+        setTimeout(() => {
+          this.form.oldPassword = oldPassword;
+        }, 50);
+      }, 50);
+    },
+
+    toggleNewPassword() {
+      this.showNewPassword = !this.showNewPassword;
+      
+      // 强制重建组件
+      this.renderNewPassword = false;
+      const newPassword = this.form.newPassword;
+      this.form.newPassword = '';
+      
+      setTimeout(() => {
+        this.renderNewPassword = true;
+        setTimeout(() => {
+          this.form.newPassword = newPassword;
+        }, 50);
+      }, 50);
+    },
+
+    toggleConfirmPassword() {
+      this.showConfirmPassword = !this.showConfirmPassword;
+      
+      // 强制重建组件
+      this.renderConfirmPassword = false;
+      const confirmPassword = this.form.confirmPassword;
+      this.form.confirmPassword = '';
+      
+      setTimeout(() => {
+        this.renderConfirmPassword = true;
+        setTimeout(() => {
+          this.form.confirmPassword = confirmPassword;
+        }, 50);
+      }, 50);
     }
   }
 }

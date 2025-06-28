@@ -31,8 +31,8 @@
           </view>
           
           <view class="model-section">
-          <view class="model-item">
-		      <text class="model-label">角色音色：</text>
+            <view class="model-item">
+              <text class="model-label">角色音色：</text>
               <!-- 添加音色类型切换 -->
               <view class="voice-type-switch">
                 <view 
@@ -46,67 +46,39 @@
                   @click="switchVoiceType('clone')"
                 >我的克隆</view>
               </view>
-		      <view class="model-selector">
-		        <picker :range="voiceOptions" range-key="label" @change="handleVoiceChange">
-		          <view class="picker-view">
-		            <text>{{ getSelectedVoiceName() }}</text>
-		            <u-icon name="arrow-right" size="28rpx" color="#999"></u-icon>
-		          </view>
-		        </picker>
-		      </view>
-		    </view>
-		    <!-- <view class="section-title">模型配置</view> -->
-		    
-		    <!-- <view v-for="(model, index) in models" :key="index" class="model-item">
-              <text class="model-label">{{ model.label }}</text>
               <view class="model-selector">
-                <picker :range="getOptionsArray(model.type)" range-key="label" @change="(e) => handlePickerChange(model.type, e)">
-                  <view class="picker-view">
-                    <text>{{ getSelectedModelName(model.type, model.key) }}</text>
-                    <u-icon name="arrow-right" size="28rpx" color="#999"></u-icon>
-                  </view>
-                </picker>
+                <view class="picker-view" @click="showVoiceSelector = true">
+                  <text>{{ getSelectedVoiceName() }}</text>
+                  <u-icon name="arrow-down" size="28rpx" color="#999"></u-icon>
+                </view>
               </view>
-              
-              <view v-if="model.type === 'Memory' && form.model.memModelId !== 'Memory_nomem'" class="chat-history-options">
-                <u-radio-group v-model="form.chatHistoryConf">
-                  <u-radio :name="1" label="上报文字"></u-radio>
-                  <u-radio :name="2" label="上报文字+语音"></u-radio>
-                </u-radio-group>
-              </view>
-		  
-		      
-		    </view> -->
-		    
-		    
             </view>
             
             <view class="model-item">
-            <text class="model-label">角色介绍：</text>
-            <u-textarea
-              v-model="form.systemPrompt"
-              placeholder="请输入角色介绍"
-              count
-              maxlength="2000"
-              :height="form.model.memModelId === 'Memory_mem_local_short' ? '240rpx' : '340rpx'"
-              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
-            ></u-textarea>
+              <text class="model-label">角色介绍：</text>
+              <u-textarea
+                v-model="form.systemPrompt"
+                placeholder="请输入角色介绍"
+                count
+                maxlength="2000"
+                :height="form.model.memModelId === 'Memory_mem_local_short' ? '240rpx' : '340rpx'"
+                :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
+              ></u-textarea>
+            </view>
+            
+            <!-- 记忆内容 -->
+            <view v-if="form.model.memModelId === 'Memory_mem_local_short'" class="model-item">
+              <text class="model-label">记忆内容：</text>
+              <u-textarea
+                v-model="form.summaryMemory"
+                placeholder="请输入记忆信息"
+                count
+                maxlength="2000"
+                height="240rpx"
+                :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
+              ></u-textarea>
+            </view>
           </view>
-          
-          <!-- 记忆内容 -->
-          <view v-if="form.model.memModelId === 'Memory_mem_local_short'" class="model-item">
-            <text class="model-label">记忆内容：</text>
-            <u-textarea
-              v-model="form.summaryMemory"
-              placeholder="请输入记忆信息"
-              count
-              maxlength="2000"
-              height="240rpx"
-              :customStyle="{backgroundColor: '#f5f6fa', borderRadius: '10rpx'}"
-            ></u-textarea>
-          </view>
-
-          
         </u-form>
       </view>
       
@@ -114,13 +86,43 @@
         <u-loading-icon size="80" mode="circle"></u-loading-icon>
         <text class="loading-text">加载中...</text>
       </view>
-      </view>
-      
+    </view>
+    
     <!-- 固定在底部的操作栏 -->
     <view class="bottom-bar">
       <view class="bottom-bar-content">
         <u-button type="primary" text="保存配置" @click="saveConfig"></u-button>
         <u-button type="info" text="重置" plain @click="resetConfig"></u-button>
+      </view>
+    </view>
+
+    <!-- 音色选择弹出层 -->
+    <view v-if="showVoiceSelector" class="custom-popup-mask" @click="showVoiceSelector = false">
+      <view class="custom-popup-content" @click.stop>
+        <view class="voice-selector">
+          <view class="voice-selector__header">
+            <text class="voice-selector__title">选择音色</text>
+            <view class="voice-selector__close" @click="showVoiceSelector = false">
+              <u-icon name="close" size="30rpx" color="#666"></u-icon>
+            </view>
+          </view>
+          <view class="voice-selector__body">
+            <view 
+              class="voice-selector__item" 
+              v-for="(item, index) in voiceOptions" 
+              :key="index"
+              @click="handleVoiceSelect(item)"
+            >
+              <text class="voice-selector__item-text">{{ item.label }}</text>
+              <view class="voice-selector__item-actions">
+                <u-icon v-if="form.ttsVoiceId === item.value" name="checkmark" color="#5778ff" size="32rpx"></u-icon>
+                <view class="voice-selector__item-play" @click.stop="playVoiceDemo(item)" v-if="item.voiceDemo">
+                  <u-icon :name="playingVoiceId === item.value ? 'pause-circle' : 'play-circle'" size="40rpx" color="#1890ff"></u-icon>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -180,7 +182,11 @@ export default {
       voiceOptions: [],
       templates: [],
       loadingTemplate: false,
-      voiceType: 'preset'
+      voiceType: 'preset',
+      showVoiceSelector: false,
+      selectedVoice: '',
+      playingVoiceId: null,
+      audioContext: null
     }
   },
   onLoad(options) {
@@ -195,6 +201,26 @@ export default {
     }
     this.fetchModelOptions();
     this.fetchTemplates();
+    
+    // 初始化音频上下文
+    this.audioContext = uni.createInnerAudioContext();
+    this.audioContext.onEnded(() => {
+      this.playingVoiceId = null;
+    });
+    this.audioContext.onError((res) => {
+      console.error('音频播放错误', res);
+      uni.showToast({
+        title: '音频播放失败',
+        icon: 'none'
+      });
+      this.playingVoiceId = null;
+    });
+  },
+  onUnload() {
+    // 页面卸载时释放音频资源
+    if (this.audioContext) {
+      this.audioContext.destroy();
+    }
   },
   methods: {
     // 初始化默认值
@@ -347,7 +373,8 @@ export default {
         if (voices.length > 0) {
           this.voiceOptions = voices.map(voice => ({
             value: voice.id || voice.voiceId,
-            label: voice.name || voice.voiceName
+            label: voice.name || voice.voiceName,
+            voiceDemo: voice.voiceDemo || ''
           }));
           
           // 如果没有选择音色且有可用音色，选择第一个
@@ -357,7 +384,7 @@ export default {
         } else {
           // 设置默认音色
           this.voiceOptions = [
-            { value: 'TTS_DoubaoTTS0001', label: '默认音色' }
+            { value: 'TTS_DoubaoTTS0001', label: '默认音色', voiceDemo: '' }
           ];
           if (!this.form.ttsVoiceId) {
             this.form.ttsVoiceId = 'TTS_DoubaoTTS0001';
@@ -367,7 +394,7 @@ export default {
         console.error('获取音色列表失败', err);
         // 设置默认音色
         this.voiceOptions = [
-          { value: 'TTS_DoubaoTTS0001', label: '默认音色' }
+          { value: 'TTS_DoubaoTTS0001', label: '默认音色', voiceDemo: '' }
         ];
         if (!this.form.ttsVoiceId) {
           this.form.ttsVoiceId = 'TTS_DoubaoTTS0001';
@@ -381,7 +408,8 @@ export default {
           if (voices.length > 0) {
             this.voiceOptions = voices.map(voice => ({
               value: voice.id || voice.voiceId,
-              label: voice.name || voice.voiceName
+              label: voice.name || voice.voiceName,
+              voiceDemo: voice.voiceDemo || ''
             }));
             
             // 如果没有选择音色且有可用音色，选择第一个
@@ -390,13 +418,13 @@ export default {
             }
           } else {
             this.voiceOptions = [
-              { value: '', label: '暂无克隆音色' }
+              { value: '', label: '暂无克隆音色', voiceDemo: '' }
             ];
           }
         }).catch(err => {
           console.error('获取克隆音色列表失败', err);
           this.voiceOptions = [
-            { value: '', label: '获取克隆音色失败' }
+            { value: '', label: '获取克隆音色失败', voiceDemo: '' }
           ];
         });
       }
@@ -473,6 +501,12 @@ export default {
       if (this.voiceOptions.length > index) {
         this.form.ttsVoiceId = this.voiceOptions[index].value;
       }
+    },
+    
+    // 直接选择音色
+    handleVoiceSelect(voice) {
+      this.form.ttsVoiceId = voice.value;
+      this.showVoiceSelector = false;
     },
     
     // 选择模板
@@ -698,6 +732,39 @@ export default {
         this.form.model.ttsModelId = 'TTS_FeiShuTTS';
         this.fetchVoiceOptions();
       }
+      
+      // 停止当前正在播放的音频
+      if (this.audioContext) {
+        this.audioContext.stop();
+        this.playingVoiceId = null;
+      }
+    },
+    // 播放音色示例音频
+    playVoiceDemo(voice) {
+      if (!voice.voiceDemo) {
+        uni.showToast({
+          title: '该音色暂无示例音频',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      if (this.playingVoiceId === voice.value) {
+        // 如果正在播放当前音频，则停止播放
+        this.audioContext.stop();
+        this.playingVoiceId = null;
+        return;
+      }
+      
+      // 停止当前正在播放的音频
+      if (this.audioContext) {
+        this.audioContext.stop();
+      }
+      
+      // 播放新的音频
+      this.playingVoiceId = voice.value;
+      this.audioContext.src = voice.voiceDemo;
+      this.audioContext.play();
     }
   }
 }
@@ -874,6 +941,106 @@ export default {
   &.voice-type-active {
     background-color: #5778ff;
     color: #ffffff;
+  }
+}
+
+.custom-popup-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.custom-popup-content {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.voice-selector {
+  background-color: #fff;
+  padding-bottom: 30rpx;
+  max-height: 45vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 100;
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1rpx solid #eee;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 10;
+  }
+  
+  &__title {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  &__close {
+    padding: 10rpx;
+    height: 50rpx;
+    width: 50rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  &__body {
+    max-height: calc(70vh - 100rpx);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1rpx solid #f5f5f5;
+    
+    &-text {
+      font-size: 28rpx;
+      color: #333;
+    }
+    
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+    }
+    
+    &-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
   }
 }
 </style>

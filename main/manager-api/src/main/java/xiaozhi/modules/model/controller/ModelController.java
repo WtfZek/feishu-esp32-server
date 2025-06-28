@@ -3,6 +3,7 @@ package xiaozhi.modules.model.controller;
 import java.util.List;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,14 +23,11 @@ import xiaozhi.common.utils.ConvertUtils;
 import xiaozhi.common.utils.Result;
 import xiaozhi.modules.agent.service.AgentTemplateService;
 import xiaozhi.modules.config.service.ConfigService;
-import xiaozhi.modules.model.dto.ModelBasicInfoDTO;
-import xiaozhi.modules.model.dto.ModelConfigBodyDTO;
-import xiaozhi.modules.model.dto.ModelConfigDTO;
-import xiaozhi.modules.model.dto.ModelProviderDTO;
-import xiaozhi.modules.model.dto.VoiceDTO;
+import xiaozhi.modules.model.dto.*;
 import xiaozhi.modules.model.entity.ModelConfigEntity;
 import xiaozhi.modules.model.service.ModelConfigService;
 import xiaozhi.modules.model.service.ModelProviderService;
+import xiaozhi.modules.model.service.VoiceCloneService;
 import xiaozhi.modules.security.user.SecurityUser;
 import xiaozhi.modules.timbre.service.TimbreService;
 
@@ -44,6 +42,7 @@ public class ModelController {
     private final ModelConfigService modelConfigService;
     private final ConfigService configService;
     private final AgentTemplateService agentTemplateService;
+    private final VoiceCloneService voiceCloneService;
 
     @GetMapping("/names")
     @Operation(summary = "获取所有模型名称")
@@ -164,5 +163,17 @@ public class ModelController {
         UserDetail user = SecurityUser.getUser();
         List<VoiceDTO> voiceList = timbreService.getCloneVoiceNames(user.getId());
         return new Result<List<VoiceDTO>>().ok(voiceList);
+    }
+
+    /**
+     * 语音克隆
+     *
+     * @param dto 语音克隆参数
+     * @return 克隆结果
+     */
+    @PostMapping("/voice-clone")
+    @Operation(summary = "语音克隆")
+    public Result<?> voiceClone(@Validated VoiceCloneDTO dto) {
+        return voiceCloneService.cloneVoice(dto);
     }
 }

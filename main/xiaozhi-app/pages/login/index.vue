@@ -40,19 +40,35 @@
         </view>
       </view>
       
-      <!-- 密码 -->
-      <view class="login-form__item">
+      <!-- 隐藏密码 -->
+      <view v-if="renderPasswordInput" class="login-form__item password-input-container">
         <u-input
+          ref="passwordInput"
           v-model="form.password"
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
           placeholder="请输入密码"
           prefixIcon="lock"
           border="bottom"
-          clearable
           :password="!showPassword"
-          suffixIcon="eye"
-          @suffixIconClick="showPassword = !showPassword"
         ></u-input>
+        <view class="eye-icon" @tap="changePassword">
+          <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+        </view>
+      </view>
+      <!-- 显示密码 -->
+      <view v-if="!renderPasswordInput" class="login-form__item password-input-container">
+        <u-input
+          ref="passwordInput"
+          v-model="form.password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="请输入密码"
+          prefixIcon="lock"
+          border="bottom"
+          :password="!showPassword"
+        ></u-input>
+        <view class="eye-icon" @tap="changePassword">
+          <u-icon name="eye" size="44rpx" :color="showPassword ? '#979db1' : '#5778ff'"></u-icon>
+        </view>
       </view>
       
       <!-- 验证码 -->
@@ -124,6 +140,7 @@ const showPassword = ref(false);
 const isMobileLogin = ref(false);
 const enableMobileLogin = ref(false);
 const allowUserRegister = ref(false);
+const renderPasswordInput = ref(true);
 
 // 用户存储
 const userStore = useUserStore();
@@ -133,6 +150,31 @@ onMounted(() => {
   fetchCaptcha();
   getPubConfig();
 });
+
+// 切换密码显示状态
+const changePassword = () => {
+  // 先改变状态
+  showPassword.value = !showPassword.value;
+  
+  // 强制销毁并重建组件
+  renderPasswordInput.value = false;
+  
+  // 缓存当前密码值
+  const currentPassword = form.password;
+  
+  // 强制重置输入框内容
+  form.password = '';
+  
+  // 延时恢复
+  setTimeout(() => {
+    renderPasswordInput.value = true;
+    
+    // 再延时恢复密码值
+    setTimeout(() => {
+      form.password = currentPassword;
+    }, 50);
+  }, 50);
+};
 
 // 获取验证码
 const fetchCaptcha = async () => {
@@ -377,6 +419,24 @@ const generateUUID = () => {
     .agreement-link {
       color: #5778ff;
     }
+  }
+}
+
+// 添加密码输入框样式
+.password-input-container {
+  position: relative;
+  
+  .eye-icon {
+    position: absolute;
+    right: 20rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 60rpx;
+    height: 60rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

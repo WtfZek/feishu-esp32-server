@@ -1,0 +1,4 @@
+# 生产环境配置
+feign:
+  voice-clone:
+    url: http://127.0.0.1:8008 

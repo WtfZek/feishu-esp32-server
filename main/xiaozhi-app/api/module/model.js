@@ -145,5 +145,161 @@ export default {
    */
   getCloneVoiceList() {
     return http(API.MODEL.CLONE_VOICES);
+  },
+  
+  /**
+   * 克隆语音
+   * @param {Object} formData 表单数据
+   * @param {Function} onProgress 上传进度回调
+   * @returns {Promise} Promise对象
+   */
+  cloneVoice(formData, onProgress) {
+    // 获取baseUrl
+    const baseUrl = http.baseUrl || 'http://192.168.3.188:8002/xiaozhi';
+    const apiUrl = baseUrl + API.MODEL.VOICE_CLONE;
+    
+    // #ifdef MP-WEIXIN
+    if (!formData.voiceFile || !formData.voiceFile.path) {
+      return Promise.reject(new Error('文件路径不存在'));
+    }
+    
+    return new Promise((resolve, reject) => {
+      const requestData = {
+        name: formData.name,
+        languages: formData.languages,
+        remark: formData.remark || ''
+      };
+      
+      const token = uni.getStorageSync('token');
+      
+      // 使用微信原生上传API
+      wx.uploadFile({
+        url: apiUrl,
+        filePath: formData.voiceFile.path,
+        name: 'voiceFile',
+        formData: requestData,
+        header: {
+          'Authorization': 'Bearer ' + token
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data);
+            resolve(data);
+          } catch (e) {
+            reject(new Error('解析响应数据失败'));
+          }
+        },
+        fail: (err) => {
+          // 如果wx.uploadFile失败，尝试使用uni.uploadFile
+          uni.uploadFile({
+            url: apiUrl,
+            filePath: formData.voiceFile.path,
+            name: 'voiceFile',
+            formData: requestData,
+            header: {
+              'Authorization': 'Bearer ' + token
+            },
+            success: (res) => {
+              try {
+                const data = JSON.parse(res.data);
+                resolve(data);
+              } catch (e) {
+                reject(new Error('解析响应数据失败'));
+              }
+            },
+            fail: (err) => {
+              reject(err);
+            }
+          });
+        }
+      });
+    });
+    // #endif
+    
+    // #ifdef H5
+    if (!formData.voiceFile || !formData.voiceFile.file) {
+      return Promise.reject(new Error('文件对象不存在'));
+    }
+    
+    const formDataH5 = new FormData();
+    formDataH5.append('name', formData.name);
+    formDataH5.append('languages', formData.languages);
+    formDataH5.append('remark', formData.remark || '');
+    formDataH5.append('voiceFile', formData.voiceFile.file);
+    
+    return new Promise((resolve, reject) => {
+      const token = uni.getStorageSync('token');
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', apiUrl, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      
+      // 进度回调
+      if (typeof onProgress === 'function') {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.floor(event.loaded * 100 / event.total);
+            onProgress(percent);
+          }
+        };
+      }
+      
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (e) {
+            reject(new Error('解析响应数据失败'));
+          }
+        } else {
+          reject(new Error('请求失败，状态码:' + xhr.status));
+        }
+      };
+      
+      xhr.onerror = function() {
+        reject(new Error('网络错误'));
+      };
+      
+      xhr.send(formDataH5);
+    });
+    // #endif
+    
+    // #ifdef APP-PLUS
+    if (!formData.voiceFile || !formData.voiceFile.path) {
+      return Promise.reject(new Error('文件路径不存在'));
+    }
+    
+    return new Promise((resolve, reject) => {
+      const requestData = {
+        name: formData.name,
+        languages: formData.languages,
+        remark: formData.remark || ''
+      };
+      
+      const token = uni.getStorageSync('token');
+      
+      uni.uploadFile({
+        url: apiUrl,
+        filePath: formData.voiceFile.path,
+        name: 'voiceFile',
+        formData: requestData,
+        header: {
+          'Authorization': 'Bearer ' + token
+        },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data);
+            resolve(data);
+          } catch (e) {
+            reject(new Error('解析响应数据失败'));
+          }
+        },
+        fail: (err) => {
+          reject(err);
+        }
+      });
+    });
+    // #endif
   }
 }; 

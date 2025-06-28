@@ -2,7 +2,7 @@
   <view class="about-page">
     <view class="about-header">
       <image class="about-logo" src="/static/logo.png" mode="aspectFit"></image>
-      <text class="about-title">小智智能体</text>
+      <text class="about-title">飞鼠智控终端</text>
       <text class="about-version">v1.0.0</text>
     </view>
     
