@@ -2,100 +2,105 @@
   <view class="creation-page">
     <!-- 页面头部 -->
     <view class="creation-header">
-      <text class="creation-title">创作社区</text>
-      <text class="creation-subtitle">共创和谐社区，共享优质智能助手</text>
-    </view>
-    
-    <!-- 搜索区域 -->
-    <view class="creation-search">
-      <view class="creation-search__wrapper">
-        <view class="creation-search__dropdown" @click="showVoiceSelector = true">
-          <text class="creation-search__dropdown-text">{{ selectedVoice || '音色' }}</text>
-          <u-icon name="arrow-down-fill" size="24rpx" color="#666"></u-icon>
-        </view>
-        <view class="creation-search__divider"></view>
-        <input 
-          class="creation-search__input" 
-          v-model="searchKeyword" 
-          placeholder="根据音色搜索智能助手" 
-          confirm-type="search"
-          @confirm="handleSearch"
-        />
-        <view class="creation-search__clear" v-if="searchKeyword || selectedVoice" @click="clearSearch">
-          <u-icon name="close-circle-fill" size="36rpx" color="#999"></u-icon>
-        </view>
-        <view class="creation-search__icon" @click="handleSearch">
-          <u-icon name="search" size="40rpx" color="#5778ff"></u-icon>
-        </view>
+      <image class="creation-header__bg" src="https://jh-vioce.oss-cn-shanghai.aliyuncs.com/image/9aabe995_ban2.png" mode="aspectFill"></image>
+      <view class="creation-header__content">
+        <text class="creation-title">创作社区</text>
+        <text class="creation-subtitle">共创和谐社区，共享优质智能助手</text>
       </view>
     </view>
     
-    <scroll-view 
-      class="creation-list"
-      scroll-y
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-      @scrolltolower="loadMore"
-    >
-      <view class="creation-empty" v-if="agentList.length === 0">
-        <u-empty mode="list" icon="">
-          <!-- <text slot="message">暂无已发布的智能助手</text> -->
-        </u-empty>
-      </view>
-      <view class="creation-items" v-else>
-        <view class="creation-item" v-for="(item, index) in agentList" :key="index" @click="viewAgentDetail(item)">
-          <view class="creation-item__header">
-            <view class="creation-item__avatar-name">
-              <image class="creation-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
-              <text class="creation-item__name">{{ item.agentName }}</text>
-            </view>
-            <view class="creation-item__clone-btn" @click.stop="cloneAgent(item)">
-              <u-icon name="plus" color="#fff" size="32rpx"></u-icon>
-            </view>
+    <view class="creation-content-body">
+      <!-- 搜索区域 -->
+      <view class="creation-search">
+        <view class="creation-search__wrapper">
+          <view class="creation-search__dropdown" @click="showVoiceSelector = true">
+            <text class="creation-search__dropdown-text">{{ selectedVoice || '音色' }}</text>
+            <u-icon name="arrow-down-fill" size="24rpx" color="#666"></u-icon>
           </view>
-          <view class="creation-item__content">
-            <view class="creation-item__info">
-              <view class="creation-item__info-item">
-                <text class="creation-item__info-label">音色模型：</text>
-                <text class="creation-item__info-value">{{ item.ttsVoiceName }}</text>
-              </view>
-              <view class="creation-item__prompt-box" v-if="item.systemPrompt">
-                <scroll-view scroll-y class="creation-item__prompt-scroll">
-                  <text class="creation-item__prompt-text">{{ item.systemPrompt }}</text>
-                </scroll-view>
-              </view>
-            </view>
+          <view class="creation-search__divider"></view>
+          <input
+            class="creation-search__input"
+            v-model="searchKeyword"
+            placeholder="根据音色搜索智能助手"
+            confirm-type="search"
+            @confirm="handleSearch"
+          />
+          <view class="creation-search__clear" v-if="searchKeyword || selectedVoice" @click="clearSearch">
+            <u-icon name="close-circle-fill" size="36rpx" color="#999"></u-icon>
           </view>
-          <view class="creation-item__footer">
-            <view class="creation-item__stats">
-              <view class="creation-item__stat-item" @click.stop="toggleLike(item)">
-                <u-icon :name="item.isLiked ? 'heart-fill' : 'heart'" size="40rpx" :color="item.isLiked ? '#FF5B8F' : '#979db1'"></u-icon>
-                <text class="creation-item__stat-text">{{ item.likes || 0 }}</text>
-              </view>
-              <view class="creation-item__stat-item" @click.stop="shareAgent(item)">
-                <u-icon name="share" size="40rpx" color="#979db1"></u-icon>
-                <text class="creation-item__stat-text">分享</text>
-              </view>
-              <view class="creation-item__stat-item">
-                <u-icon name="download" size="40rpx" color="#979db1"></u-icon>
-                <text class="creation-item__stat-text">{{ item.deviceCount || 0 }}</text>
-              </view>
-            </view>
-            <text class="creation-item__time" v-if="item.lastConnectedAt">最近更新: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD') }}</text>
+          <view class="creation-search__icon" @click="handleSearch">
+            <u-icon name="search" size="40rpx" color="#5778ff"></u-icon>
           </view>
         </view>
-        
-        <!-- 加载更多提示 -->
-        <view class="loading-more" v-if="agentList.length > 0">
-          <text v-if="isLoading">加载中...</text>
-          <text v-else-if="hasMore">上拉加载更多</text>
-          <text v-else>没有更多数据了</text>
-        </view>
-        
-        <view style="height: 30rpx;"></view>
       </view>
-    </scroll-view>
+
+      <scroll-view
+        class="creation-list-scroll-view"
+        scroll-y
+        refresher-enabled
+        :refresher-triggered="refreshing"
+        @refresherrefresh="onRefresh"
+        @scrolltolower="loadMore"
+      >
+        <view class="creation-empty" v-if="agentList.length === 0">
+          <u-empty mode="list" icon="">
+            <!-- <text slot="message">暂无已发布的智能助手</text> -->
+          </u-empty>
+        </view>
+        <view class="creation-items-wrapper" v-else>
+          <view class="creation-item" v-for="(item, index) in agentList" :key="index" @click="viewAgentDetail(item)">
+            <view class="creation-item__header">
+              <view class="creation-item__avatar-name">
+                <image class="creation-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+                <text class="creation-item__name">{{ item.agentName }}</text>
+              </view>
+              <view class="creation-item__clone-btn" @click.stop="cloneAgent(item)">
+                <u-icon name="plus" color="#fff" size="32rpx"></u-icon>
+              </view>
+            </view>
+            <view class="creation-item__content">
+              <view class="creation-item__info">
+                <view class="creation-item__info-item">
+                  <text class="creation-item__info-label">音色模型：</text>
+                  <text class="creation-item__info-value">{{ item.ttsVoiceName || '未选择' }}</text>
+                </view>
+                <view class="creation-item__prompt-box" v-if="item.systemPrompt">
+                  <scroll-view scroll-y class="creation-item__prompt-scroll">
+                    <text class="creation-item__prompt-text">{{ item.systemPrompt }}</text>
+                  </scroll-view>
+                </view>
+              </view>
+            </view>
+            <view class="creation-item__footer">
+              <view class="creation-item__stats">
+                <view class="creation-item__stat-item" @click.stop="toggleLike(item)">
+                  <u-icon :name="item.isLiked ? 'heart-fill' : 'heart'" size="40rpx" :color="item.isLiked ? '#FF5B8F' : '#979db1'"></u-icon>
+                  <text class="creation-item__stat-text">{{ item.likes || 0 }}</text>
+                </view>
+                <view class="creation-item__stat-item" @click.stop="shareAgent(item)">
+                  <u-icon name="share" size="40rpx" color="#979db1"></u-icon>
+                  <text class="creation-item__stat-text">分享</text>
+                </view>
+                <view class="creation-item__stat-item">
+                  <u-icon name="download" size="40rpx" color="#979db1"></u-icon>
+                  <text class="creation-item__stat-text">{{ item.deviceCount || 0 }}</text>
+                </view>
+              </view>
+              <text class="creation-item__time" v-if="item.lastConnectedAt">最近更新: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD') }}</text>
+            </view>
+          </view>
+
+          <!-- 加载更多提示 -->
+          <view class="loading-more" v-if="agentList.length > 0">
+            <text v-if="isLoading">加载中...</text>
+            <text v-else-if="hasMore">上拉加载更多</text>
+            <text v-else>没有更多数据了</text>
+          </view>
+
+          <view style="height: 30rpx;"></view>
+        </view>
+      </scroll-view>
+    </view>
     
     <!-- 音色选择弹出层 -->
     <view v-if="showVoiceSelector" class="custom-popup-mask" @click="showVoiceSelector = false">
@@ -466,11 +471,31 @@ export default {
 }
 
 .creation-header {
-  padding: 30rpx;
-  background: linear-gradient(135deg, #5778ff, #6b8aff);
+  position: relative;
   color: #fff;
   flex-shrink: 0;
-  
+  padding: 40rpx 30rpx;
+  padding-top: calc(var(--status-bar-height) + 160rpx);
+  padding-bottom: 60rpx;
+  overflow: hidden;
+
+  &__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: blur(3px);
+    transform: scale(1.1);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 30rpx;
+  }
+
   .creation-title {
     font-size: 44rpx;
     font-weight: bold;
@@ -482,6 +507,18 @@ export default {
     font-size: 28rpx;
     opacity: 0.9;
   }
+}
+
+.creation-content-body {
+  flex: 1;
+  background-color: #f8f8f8;
+  margin-top: -40rpx;
+  border-radius: 40rpx 40rpx 0 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 搜索区域样式 */
@@ -542,6 +579,16 @@ export default {
     align-items: center;
     justify-content: center;
   }
+}
+
+.creation-list-scroll-view {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+}
+
+.creation-items-wrapper {
+  padding: 20rpx 20rpx 0 20rpx;
 }
 
 /* 音色选择器样式 */
@@ -615,12 +662,7 @@ export default {
   }
 }
 
-.creation-list {
-  flex: 1;
-  padding: 20rpx 20rpx 0 20rpx;
-  height: 0;
-  overflow: hidden;
-  
+.creation-items-wrapper {
   .creation-empty {
     padding: 100rpx 0;
     display: flex;
@@ -639,123 +681,121 @@ export default {
     }
   }
   
-  .creation-items {
-    .creation-item {
-      background-color: #fff;
-      border-radius: 20rpx;
-      padding: 30rpx;
+  .creation-item {
+    background-color: #fff;
+    border-radius: 20rpx;
+    padding: 30rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+    position: relative;
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20rpx;
+    }
+
+    &__avatar-name {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+    }
+
+    &__avatar {
+      width: 80rpx;
+      height: 80rpx;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      border: 2rpx solid #eaeaea;
+    }
+
+    &__name {
+      font-size: 36rpx;
+      font-weight: bold;
+      color: #3d4566;
+    }
+
+    &__clone-btn {
+      width: 60rpx;
+      height: 60rpx;
+      border-radius: 50%;
+      background-color: #4cd964;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2rpx 8rpx rgba(76, 217, 100, 0.3);
+      margin-right: 20rpx;
+    }
+
+    &__content {
       margin-bottom: 30rpx;
-      box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-      position: relative;
-      
-      &__header {
+    }
+
+    &__info {
+      &-item {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20rpx;
+        margin-bottom: 16rpx;
       }
-      
-      &__avatar-name {
-        display: flex;
-        align-items: center;
-        gap: 20rpx;
-      }
-      
-      &__avatar {
-        width: 80rpx;
-        height: 80rpx;
-        border-radius: 50%;
-        background-color: #f0f0f0;
-        border: 2rpx solid #eaeaea;
-      }
-      
-      &__name {
-        font-size: 36rpx;
-        font-weight: bold;
-        color: #3d4566;
-      }
-      
-      &__clone-btn {
-        width: 60rpx;
-        height: 60rpx;
-        border-radius: 50%;
-        background-color: #4cd964;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2rpx 8rpx rgba(76, 217, 100, 0.3);
-        margin-right: 20rpx;
-      }
-      
-      &__content {
-        margin-bottom: 20rpx;
-      }
-      
-      &__info {
-        &-item {
-          display: flex;
-          margin-bottom: 16rpx;
-        }
-        
-        &-label {
-          font-size: 28rpx;
-          color: #666;
-          // width: 120rpx;
-        }
-        
-        &-value {
-          font-size: 28rpx;
-          color: #333;
-          font-weight: bold;
-        }
-      }
-      
-      &__prompt-box {
-        margin-top: 20rpx;
-        margin-bottom: 20rpx;
-        border-radius: 12rpx;
-        background-color: #f8f8f8;
-        padding: 16rpx;
-      }
-      
-      &__prompt-scroll {
-        max-height: 160rpx;
-      }
-      
-      &__prompt-text {
-        font-size: 26rpx;
+
+      &-label {
+        font-size: 28rpx;
         color: #666;
-        line-height: 1.5;
-        word-break: break-all;
-        white-space: pre-wrap;
+        // width: 120rpx;
       }
-      
-      &__footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+
+      &-value {
+        font-size: 28rpx;
+        color: #333;
+        font-weight: bold;
       }
-      
-      &__stats {
-        display: flex;
-        gap: 30rpx;
-      }
-      
-      &__stat-item {
-        display: flex;
-        align-items: center;
-        gap: 8rpx;
-      }
-      
-      &__stat-text {
-        font-size: 24rpx;
-        color: #979db1;
-      }
-      
-      &__time {
-        font-size: 24rpx;
-        color: #979db1;
-      }
+    }
+
+    &__prompt-box {
+      margin-top: 20rpx;
+      margin-bottom: 20rpx;
+      border-radius: 12rpx;
+      background-color: #f8f8f8;
+      padding: 16rpx;
+    }
+
+    &__prompt-scroll {
+      max-height: 160rpx;
+    }
+
+    &__prompt-text {
+      font-size: 26rpx;
+      color: #666;
+      line-height: 1.5;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    &__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &__stats {
+      display: flex;
+      gap: 30rpx;
+    }
+
+    &__stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8rpx;
+    }
+
+    &__stat-text {
+      font-size: 24rpx;
+      color: #979db1;
+    }
+
+    &__time {
+      font-size: 24rpx;
+      color: #979db1;
     }
   }
 }

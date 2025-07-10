@@ -2,70 +2,77 @@
   <view class="voice-page">
     <!-- 页面头部 -->
     <view class="voice-header">
-      <text class="voice-title">音色库</text>
-      <text class="voice-subtitle">体验多种音色，打造专属声音</text>
-    </view>
-    
-    <!-- 音色类型切换 -->
-    <view class="voice-type-switch">
-      <view 
-        class="voice-type-item" 
-        :class="{'voice-type-active': voiceType === 'preset'}"
-        @click="switchVoiceType('preset')"
-      >预设音色</view>
-      <view 
-        class="voice-type-item" 
-        :class="{'voice-type-active': voiceType === 'clone'}"
-        @click="switchVoiceType('clone')"
-      >我的克隆</view>
-    </view>
-    
-    <!-- 音色列表 -->
-    <scroll-view 
-      class="voice-list"
-      scroll-y
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-    >
-      <view class="voice-empty" v-if="voiceList.length === 0">
-        <u-empty mode="list" icon="">
-          <text slot="message">{{ voiceType === 'preset' ? '暂无预设音色' : '暂无克隆音色' }}</text>
-        </u-empty>
+      <image class="voice-header__bg" src="https://jh-vioce.oss-cn-shanghai.aliyuncs.com/image/d151a6cf_ban3.png" mode="aspectFill"></image>
+      <view class="voice-header__content">
+        <text class="voice-title">音色库</text>
+        <text class="voice-subtitle">体验多种音色，打造专属声音</text>
       </view>
-      <view class="voice-items" v-else>
-        <!-- 音色列表项 -->
-        <view 
-          v-for="(item, index) in voiceList" 
-          :key="item.id"
-          class="voice-item"
-        >
-        <!-- @click="handleVoiceItemClick(item)" -->
-          <view class="voice-item__header">
-            <view class="voice-item__name">{{ item.name || item.voiceName }}</view>
-            <view class="voice-item__play" @click="playVoiceDemo(item)">
-              <u-icon :name="playingVoiceId === (item.id || item.voiceId) ? 'pause-circle' : 'play-circle'" size="60rpx" color="#1890ff"></u-icon>
+    </view>
+    
+    <view class="voice-content-body">
+      <!-- 音色类型切换 -->
+      <view class="voice-type-switch">
+        <view
+          class="voice-type-item"
+          :class="{'voice-type-active': voiceType === 'preset'}"
+          @click="switchVoiceType('preset')"
+        >预设音色</view>
+        <view
+          class="voice-type-item"
+          :class="{'voice-type-active': voiceType === 'clone'}"
+          @click="switchVoiceType('clone')"
+        >我的克隆</view>
+      </view>
+
+      <!-- 音色列表 -->
+      <scroll-view
+        class="voice-list-scroll-view"
+        scroll-y
+        refresher-enabled
+        :refresher-triggered="refreshing"
+        @refresherrefresh="onRefresh"
+      >
+        <view class="voice-empty" v-if="voiceList.length === 0">
+          <u-empty mode="list" icon="">
+            <text slot="message">{{ voiceType === 'preset' ? '暂无预设音色' : '暂无克隆音色' }}</text>
+          </u-empty>
+        </view>
+        <view class="voice-items-wrapper" v-else>
+          <!-- 音色列表项 -->
+          <view
+            v-for="(item, index) in voiceList"
+            :key="item.id"
+            class="voice-item"
+          >
+            <view class="voice-item__header">
+              <view class="voice-item__name">{{ item.name || item.voiceName }}</view>
+              <view class="voice-item__play" @click="playVoiceDemo(item)">
+                <u-icon :name="playingVoiceId === (item.id || item.voiceId) ? 'pause-circle' : 'play-circle'" size="60rpx" color="#1890ff"></u-icon>
+              </view>
             </view>
-          </view>
-          <view class="voice-item__content">
-            <!-- <view class="voice-item__desc" v-if="item.desc">{{ item.desc }}</view> -->
-            <view class="voice-item__info-row">
-              <view class="voice-item__label" v-if="item.languages">语言：{{ item.languages }}</view>
-              <view class="voice-item__label" v-if="voiceType === 'clone' && (item.createDate || item.createTime)">
-                创建时间：{{ $filters.formatDate(item.createDate || item.createTime, 'YYYY-MM-DD HH:mm') }}
+            <view class="voice-item__content">
+              <!-- <view class="voice-item__desc" v-if="item.desc">{{ item.desc }}</view> -->
+              <view class="voice-item__info-row">
+                <view class="voice-item__label" v-if="item.languages">语言：{{ item.languages }}</view>
+                <view class="voice-item__label" v-if="voiceType === 'clone' && (item.createDate || item.createTime)">
+                  创建时间：{{ $filters.formatDate(item.createDate || item.createTime, 'YYYY-MM-DD HH:mm') }}
+                </view>
               </view>
             </view>
           </view>
+
+          <!-- 底部预留高度 -->
+          <view style="height: 30rpx;"></view>
         </view>
-        
-        <!-- 底部预留高度，避免浮动按钮遮挡内容 -->
-        <view style="height: 130rpx;"></view>
-      </view>
-    </scroll-view>
+      </scroll-view>
+    </view>
     
-    <!-- 克隆音色按钮，固定在底部 -->
+    <!-- 克隆音色按钮，固定在内容区下方 -->
     <view class="voice-add">
-      <u-button type="primary" text="克隆新音色" @click="goToClone" background="linear-gradient(135deg, #5778ff, #6b8aff);"></u-button>
+      <u-button type="primary" text="克隆新音色" @click="goToClone" background="linear-gradient(135deg, #5778ff, #6b8aff);" shape="circle">
+        <u-icon name="plus" color="#ffffff" size="28rpx"></u-icon>
+        <text>克隆新音色</text>
+      </u-button>
     </view>
   </view>
 </template>
@@ -239,11 +246,31 @@ export default {
 }
 
 .voice-header {
-  padding: 30rpx;
-  background: linear-gradient(135deg, #5778ff, #6b8aff);
+  position: relative;
   color: #fff;
   flex-shrink: 0;
-  
+  padding: 40rpx 30rpx;
+  padding-top: calc(var(--status-bar-height) + 160rpx);
+  padding-bottom: 60rpx;
+  overflow: hidden;
+
+  &__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: blur(3px);
+    transform: scale(1.1);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 30rpx;
+  }
+
   .voice-title {
     font-size: 44rpx;
     font-weight: bold;
@@ -255,6 +282,18 @@ export default {
     font-size: 28rpx;
     opacity: 0.9;
   }
+}
+
+.voice-content-body {
+  flex: 1;
+  background-color: #f8f8f8;
+  margin-top: -40rpx;
+  border-radius: 40rpx 40rpx 0 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .voice-type-switch {
@@ -280,93 +319,99 @@ export default {
   }
 }
 
-.voice-list {
+.voice-list-scroll-view {
   flex: 1;
-  padding: 20rpx 20rpx 0 20rpx;
-  box-sizing: border-box;
-  width: 100%;
   height: 0;
-  overflow: hidden;
-  
-  .voice-empty {
-    padding: 100rpx 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .voice-items {
-    .voice-item {
-      background-color: #fff;
-      border-radius: 20rpx;
-      padding: 30rpx;
-      margin-bottom: 30rpx;
-      box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-      
-      &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        // margin-bottom: 20rpx;
-      }
-      
-      &__name {
-        font-size: 32rpx;
-        font-weight: bold;
-        color: #3d4566;
-      }
-      
-      &__play {
-        width: 60rpx;
-        height: 60rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      &__content {
-        margin-top: 20rpx;
-      }
-      
-      &__info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10rpx;
-      }
-      
-      &__desc {
-        font-size: 28rpx;
-        color: #666;
-        margin-bottom: 16rpx;
-        line-height: 1.5;
-      }
-      
-      &__label {
-        font-size: 26rpx;
-        color: #979db1;
-      }
+  overflow-y: auto;
+}
+
+.voice-items-wrapper {
+  padding: 20rpx 20rpx 0 20rpx;
+}
+
+.voice-empty {
+  padding: 100rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-items-wrapper {
+  .voice-item {
+    background-color: #fff;
+    border-radius: 20rpx;
+    padding: 30rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &__name {
+      font-size: 32rpx;
+      font-weight: bold;
+      color: #3d4566;
+    }
+
+    &__play {
+      width: 60rpx;
+      height: 60rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &__content {
+      margin-top: 20rpx;
+    }
+
+    &__info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10rpx;
+    }
+
+    &__desc {
+      font-size: 28rpx;
+      color: #666;
+      margin-bottom: 16rpx;
+      line-height: 1.5;
+    }
+
+    &__label {
+      font-size: 26rpx;
+      color: #979db1;
     }
   }
 }
 
 .voice-add {
-  position: fixed;
-  bottom: 40rpx;
-  left: 0;
-  right: 0;
-  padding: 0 40rpx;
+  position: relative;
+  padding: 40rpx 30rpx;
+  text-align: center;
+  background-color: #fff;
   z-index: 10;
-  transition: bottom 0.3s;
+  border-radius: 40rpx 40rpx 0 0;
+  margin-top: -40rpx;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
   
   .u-button {
-    box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.1);
+    width: 300rpx;
+    height: 80rpx;
+
+    .u-icon {
+      margin-right: 10rpx;
+    }
   }
 }
 
 // 使用CSS选择器给第一个音色项添加上边距
-.voice-items .voice-item:first-child {
+.voice-items-wrapper .voice-item:first-child {
   margin-top: 10rpx;
 }
 </style>

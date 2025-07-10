@@ -9,10 +9,10 @@ let baseUrl = '';
 // 通过环境来判断
 if (process.env.NODE_ENV === 'development') {
 	// 开发环境使用本地API或Mock
-	baseUrl = 'http://192.168.3.188:8002/xiaozhi';
+	baseUrl = 'http://192.168.1.98:8002/xiaozhi';
 } else {
 	// 生产环境使用实际API地址
-	baseUrl = 'http://192.168.3.188:8002/xiaozhi';
+	baseUrl = 'http://192.168.1.98:8002/xiaozhi';
 }
 
 /**

@@ -1,81 +1,90 @@
 <template>
   <view class="agent-page">
-    <scroll-view 
-      class="agent-list"
-      scroll-y
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-    >
-      <view class="agent-empty" v-if="agentList.length === 0">
-        <u-empty mode="list" icon="">
-          <view class="agent-empty__text">
-            请点击下方按钮创建智能体
-          </view>
-        </u-empty>
+    <view class="agent-header">
+      <image class="agent-header__bg" src="https://jh-vioce.oss-cn-shanghai.aliyuncs.com/image/4f9baf7e_ban1.png" mode="aspectFill"></image>
+      <view class="agent-header__content">
+        <!-- <image class="agent-header__avatar" src="/static/avatar/default_toy_avatar_old.jpeg" mode="aspectFit"></image> -->
+        <view class="agent-header__info">
+          <text class="agent-header__name">飞鼠智能体</text>
+          <text class="agent-header__description">一个专为儿童打造的温馨互动乐园！在这里，孩子们将遇见专属的AI玩伴，一同探索、学习和成长。</text>
+        </view>
+        <view class="agent-header__config-btn" @click="goToFirstAgentConfig">
+          <text>角色定义</text>
+        </view>
       </view>
-      <view class="agent-items" v-else>
-        <view class="agent-item" v-for="(item, index) in agentList" :key="index">
-          <view class="agent-item__header">
-            <view class="agent-item__avatar-name">
-              <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
-              <text class="agent-item__name">{{ item.agentName }}</text>
-            </view>
-            <view class="agent-item__actions">
-              <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
-            </view>
-          </view>
-          <view class="agent-item__content">
-            <view class="agent-item__info">
-              <!-- <view class="agent-item__info-item">
-                <text class="agent-item__info-label">语音模型：</text>
-                <text class="agent-item__info-value">{{ item.ttsModelName }}</text>
-              </view> -->
-              <view class="agent-item__info-item">
-                <text class="agent-item__info-label">音色模型：</text>
-                <text class="agent-item__info-value">{{ item.ttsVoiceName }}</text>
-              </view>
-              <view class="agent-item__info-item publish-switch-row">
-                <text class="agent-item__info-label">发布状态：</text>
-                <view class="publish-switch-value">
-                  <u-switch 
-                    v-model="item.published"
-                    :size="24"
-                    activeColor="#5bc98c"
-                    inactiveColor="#e6e6e6"
-                    @change="(value) => handlePublishSwitchChange(item, value)"
-                  ></u-switch>
+    </view>
+
+    <view class="agent-content-body">
+      <view class="add-device-section">
+        <text class="add-device-section__prompt">快添加新设备开始聊天吧~</text>
+        <u-button class="add-device-section__btn" type="primary" shape="circle" @click="showAddDialog">
+          <u-icon name="plus" color="#ffffff" size="28rpx"></u-icon>
+          <text>新设备</text>
+        </u-button>
+      </view>
+
+      <view class="list-title-wrapper">
+        <text class="list-title">智能体列表</text>
+      </view>
+
+      <scroll-view
+        class="agent-list-scroll-view"
+        scroll-y
+        refresher-enabled
+        :refresher-triggered="refreshing"
+        @refresherrefresh="onRefresh"
+      >
+        <view v-if="agentList.length > 0">
+          <view class="agent-items">
+            <view class="agent-item" v-for="(item, index) in agentList" :key="index">
+              <view class="agent-item__header">
+                <view class="agent-item__avatar-name">
+                  <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+                  <text class="agent-item__name">{{ item.agentName }}</text>
+                </view>
+                <view class="agent-item__actions">
+                  <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
                 </view>
               </view>
-              <!-- <view class="agent-item__prompt-box" v-if="item.systemPrompt">
-                <scroll-view scroll-y class="agent-item__prompt-scroll">
-                  <text class="agent-item__prompt-text">{{ item.systemPrompt }}</text>
-                </scroll-view>
-              </view> -->
+              <view class="agent-item__content">
+                <view class="agent-item__info">
+                  <view class="agent-item__info-item">
+                    <text class="agent-item__info-label">音色模型：</text>
+                    <text class="agent-item__info-value">{{ item.ttsVoiceName || '未选择' }}</text>
+                  </view>
+                  <view class="agent-item__info-item publish-switch-row">
+                    <text class="agent-item__info-label">发布状态：</text>
+                    <view class="publish-switch-value">
+                      <u-switch
+                        v-model="item.published"
+                        :size="24"
+                        activeColor="#5bc98c"
+                        inactiveColor="#e6e6e6"
+                        @change="(value) => handlePublishSwitchChange(item, value)"
+                      ></u-switch>
+                    </view>
+                  </view>
+                </view>
+              </view>
+              <view class="agent-item__button-group">
+                <view class="agent-item__button" @click="goToConfig(item)">
+                  <text>角色配置</text>
+                </view>
+                <view class="agent-item__button" @click="goToDeviceManage(item)">
+                  <text>设备管理({{ item.deviceCount || 0 }})</text>
+                </view>
+                <view class="agent-item__button" :class="{'agent-item__button--disabled': item.memModelId === 'Memory_nomem'}" @click="goToChatHistory(item)">
+                  <text>聊天记录</text>
+                </view>
+              </view>
+              <view class="agent-item__footer">
+                <text class="agent-item__time" v-if="item.lastConnectedAt">最近连接: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD HH:mm') }}</text>
+              </view>
             </view>
-          </view>
-          <view class="agent-item__button-group">
-            <view class="agent-item__button" @click="goToConfig(item)">
-              <text>角色配置</text>
-            </view>
-            <view class="agent-item__button" @click="goToDeviceManage(item)">
-              <text>设备管理({{ item.deviceCount || 0 }})</text>
-            </view>
-            <view class="agent-item__button" :class="{'agent-item__button--disabled': item.memModelId === 'Memory_nomem'}" @click="goToChatHistory(item)">
-              <text>聊天记录</text>
-            </view>
-          </view>
-          <view class="agent-item__footer">
-            <text class="agent-item__time" v-if="item.lastConnectedAt">最近连接: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD HH:mm') }}</text>
+            <view style="height: 30rpx;"></view>
           </view>
         </view>
-        <view style="height: 130rpx;"></view>
-      </view>
-    </scroll-view>
-    
-    <!-- 创建智能体按钮，固定在底部 -->
-    <view class="agent-add">
-      <u-button type="primary" text="创建智能体" @click="showAddDialog" background="linear-gradient(135deg, #4cd964, #00c16e);"></u-button>
+      </scroll-view>
     </view>
     
     <!-- 添加智能体对话框 -->
@@ -90,9 +99,6 @@
             <u-form-item label="助手昵称" prop="agentName" labelWidth="150rpx">
               <u-input v-model="agentForm.agentName" placeholder="请输入助手昵称" maxlength="10"></u-input>
             </u-form-item>
-            
-            <!-- 可以添加更多表单项，如角色类型选择等 -->
-            
           </u-form>
         </view>
         <view class="add-dialog__footer">
@@ -291,6 +297,17 @@ export default {
           });
         });
     },
+    // 跳转到第一个智能体的配置
+    goToFirstAgentConfig() {
+      if (this.agentList.length > 0) {
+        this.goToConfig(this.agentList[0]);
+      } else {
+        uni.showToast({
+          title: '请先创建智能体',
+          icon: 'none'
+        });
+      }
+    },
     // 下拉刷新
     onRefresh() {
       this.refreshing = true;
@@ -303,162 +320,235 @@ export default {
 <style lang="scss">
 .agent-page {
   height: 100vh;
-  padding: 20rpx 20rpx 0 20rpx;
   background-color: #f8f8f8;
   position: relative;
   box-sizing: border-box;
-  overflow: hidden; /* 防止外部出现滚动条 */
-  
-  .agent-list {
-    height: calc(100vh - 20rpx); /* 减去padding和底部按钮区域的高度 */
-    overflow-y: auto; /* 确保内部滚动条正常工作 */
-    
-    .agent-empty {
-      padding: 100rpx 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-      &__text {
-        font-size: 28rpx;
-        color: #c0c4cc;
-        margin-top: 20rpx;
-      }
-    }
-    
-    .agent-items {
-      .agent-item {
-        background-color: #fff;
-        border-radius: 20rpx;
-        padding: 30rpx;
-        margin-bottom: 30rpx;
-        box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-        
-        &__header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20rpx;
-        }
-        
-        &__avatar-name {
-          display: flex;
-          align-items: center;
-          gap: 20rpx;
-        }
-        
-        &__avatar {
-          width: 80rpx;
-          height: 80rpx;
-          border-radius: 50%;
-          background-color: #f0f0f0;
-          border: 2rpx solid #eaeaea;
-        }
-        
-        &__name {
-          font-size: 36rpx;
-          font-weight: bold;
-          color: #3d4566;
-        }
-        
-        &__actions {
-          display: flex;
-          align-items: center;
-        }
-        
-        &__content {
-          margin-bottom: 30rpx;
-          margin-left: -20rpx;
-        }
-        
-        &__info {
-          &-item {
-            display: flex;
-            margin-bottom: 16rpx;
-          }
-          
-          &-label {
-            font-size: 28rpx;
-            color: #666;
-            width: 180rpx;
-            text-align: right;
-          }
-          
-          &-value {
-            font-size: 28rpx;
-            color: #333;
-            font-weight: bold;
-          }
-        }
-        
-        &__prompt-box {
-          margin-top: 20rpx;
-          margin-bottom: 20rpx;
-          border-radius: 12rpx;
-          background-color: #f8f8f8;
-          padding: 16rpx;
-        }
-        
-        &__prompt-scroll {
-          max-height: 160rpx;
-        }
-        
-        &__prompt-text {
-          font-size: 26rpx;
-          color: #666;
-          line-height: 1.5;
-          word-break: break-all;
-          white-space: pre-wrap;
-        }
-        
-        &__button-group {
-          display: flex;
-          gap: 20rpx;
-          margin-bottom: 20rpx;
-        }
-        
-        &__button {
-          background-color: #e6ebff;
-          color: #5778ff;
-          font-size: 26rpx;
-          font-weight: 500;
-          padding: 10rpx 20rpx;
-          border-radius: 28rpx;
-          text-align: center;
-          
-          &--disabled {
-            background-color: #e6e6e6;
-            color: #999;
-          }
-        }
-        
-        &__footer {
-          display: flex;
-          justify-content: flex-end;
-        }
-        
-        &__time {
-          font-size: 24rpx;
-          color: #979db1;
-        }
-      }
-    }
-  }
-  
-  .agent-add {
-    position: fixed;
-    bottom: 40rpx; /* 微信小程序环境，调整为更接近tabbar的位置 */
+.agent-header {
+  position: relative;
+  color: #fff;
+  flex-shrink: 0;
+  padding: 40rpx 30rpx;
+  padding-top: calc(var(--status-bar-height) + 160rpx);
+  padding-bottom: 100rpx;
+  overflow: hidden;
 
-    
+  &__bg {
+    position: absolute;
+    top: 0;
     left: 0;
-    right: 0;
-    padding: 0 40rpx;
-    z-index: 10;
-    
-    /* 添加一个小动画效果 */
-    transition: bottom 0.3s;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: blur(3px);
+    transform: scale(1.1);
   }
-  
-  /* 可选：为按钮添加阴影效果，增强视觉层次 */
-  .agent-add .u-button {
-    box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.1);
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  &__avatar {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    border: 4rpx solid rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+  }
+
+  &__info {
+    margin-left: 20rpx;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 40rpx;
+    font-weight: bold;
+    display: block;
+  }
+
+  &__description {
+    font-size: 24rpx;
+    opacity: 0.9;
+    margin-top: 10rpx;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__config-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 30rpx;
+    padding: 10rpx 20rpx;
+    font-size: 24rpx;
+    flex-shrink: 0;
+    margin-left: 20rpx;
+    text-align: center;
+  }
+}
+
+.agent-content-body {
+  flex: 1;
+  background-color: #f8f8f8;
+  margin-top: -40rpx;
+  border-radius: 40rpx 40rpx 0 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.add-device-section {
+  padding: 40rpx 30rpx;
+  text-align: center;
+  background-color: #fff;
+  flex-shrink: 0;
+
+  &__prompt {
+    font-size: 28rpx;
+    color: #666;
+    display: block;
+    margin-bottom: 30rpx;
+  }
+
+  &__btn {
+    width: 300rpx;
+    height: 80rpx;
+
+    .u-icon {
+      margin-right: 10rpx;
+    }
+  }
+}
+
+.agent-list-scroll-view {
+  flex: 1;
+  height: 0;
+}
+
+.list-title-wrapper {
+  padding: 40rpx 30rpx 40rpx 30rpx;
+}
+.list-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.agent-items {
+  padding: 0 30rpx;
+  .agent-item {
+    background-color: #fff;
+    border-radius: 20rpx;
+    padding: 30rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &__avatar-name {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+    }
+
+    &__avatar {
+      width: 80rpx;
+      height: 80rpx;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      border: 2rpx solid #eaeaea;
+    }
+
+    &__name {
+      font-size: 36rpx;
+      font-weight: bold;
+      color: #3d4566;
+    }
+
+    &__actions {
+      display: flex;
+      align-items: center;
+    }
+
+    &__content {
+      margin-bottom: 30rpx;
+      margin-left: -20rpx;
+    }
+
+    &__info {
+      &-item {
+        display: flex;
+        margin-bottom: 16rpx;
+      }
+
+      &-label {
+        font-size: 28rpx;
+        color: #666;
+        width: 180rpx;
+        text-align: right;
+      }
+
+      &-value {
+        font-size: 28rpx;
+        color: #333;
+        font-weight: bold;
+      }
+    }
+
+    &__button-group {
+      display: flex;
+      gap: 20rpx;
+      margin-bottom: 20rpx;
+    }
+
+    &__button {
+      background-color: #e6ebff;
+      color: #5778ff;
+      font-size: 26rpx;
+      font-weight: 500;
+      padding: 10rpx 20rpx;
+      border-radius: 28rpx;
+      text-align: center;
+
+      &--disabled {
+        background-color: #e6e6e6;
+        color: #999;
+      }
+    }
+
+    &__footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    &__time {
+      font-size: 24rpx;
+      color: #979db1;
+    }
+  }
+}
+
+// 覆盖u-popup默认样式，防止占用空间
+:deep(.u-popup) {
+  &:not(.u-popup--show) {
+    flex: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
@@ -466,7 +556,9 @@ export default {
 .add-dialog {
   width: 600rpx;
   padding: 30rpx;
-  
+  background: #fff;
+  border-radius: 10rpx;
+
   &__header {
     display: flex;
     justify-content: space-between;

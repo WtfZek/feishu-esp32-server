@@ -1,13 +1,16 @@
 <template>
   <view class="my-page">
     <view class="my-header">
-      <view class="my-header__avatar">
-        <u-avatar size="100" :src="userInfo.avatar || '/static/avatar/default_user_avatar.jpeg'"></u-avatar>
-      </view>
-      <view class="my-header__info">
-        <view class="my-header__name">{{ userInfo.username || '未登录' }}</view>
-        <view class="my-header__mobile" :class="{'clickable': !isLoggedIn}" @click="handleMobileClick">
-          {{ isLoggedIn ? '普通用户' : '点击登录' }}
+      <image class="my-header__bg" src="https://jh-vioce.oss-cn-shanghai.aliyuncs.com/image/bf8d06df_ban4.png" mode="aspectFill"></image>
+      <view class="my-header__content">
+        <view class="my-header__avatar">
+          <u-avatar size="100" :src="userInfo.avatar || '/static/avatar/default_user_avatar.jpeg'"></u-avatar>
+        </view>
+        <view class="my-header__info">
+          <view class="my-header__name">{{ userInfo.username || '未登录' }}</view>
+          <view class="my-header__mobile" :class="{'clickable': !isLoggedIn}" @click="handleMobileClick">
+            {{ isLoggedIn ? '普通用户' : '点击登录' }}
+          </view>
         </view>
       </view>
     </view>
@@ -105,13 +108,35 @@ export default {
 .my-page {
   min-height: 100vh;
   background-color: #f8f8f8;
-  
+  display: flex;
+  flex-direction: column;
+
   .my-header {
-    height: 160px;
-    background: linear-gradient(to right, #2979ff, #5cadff);
-    display: flex;
-    align-items: center;
+    height: 240rpx;
     padding: 0 30rpx;
+    padding-top: calc(var(--status-bar-height) + 20rpx);
+    padding-bottom: calc(var(--status-bar-height));
+    position: relative;
+    overflow: hidden;
+
+    &__bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      filter: blur(3px);
+      transform: scale(1.1);
+    }
+
+    &__content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      color: #fff;
+      height: 100%;
+    }
     
     &__avatar {
       margin-right: 30rpx;
@@ -139,7 +164,23 @@ export default {
   }
   
   .my-menu {
-    margin: 20rpx 0;
+    margin: 0;
+    background-color: #fff;
+    border-radius: 12rpx;
+    overflow: hidden;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+
+    &:first-of-type {
+      margin-top: -40rpx;
+      position: relative;
+      z-index: 2;
+    }
+
+    &:not(:first-of-type) {
+      margin-top: 20rpx;
+      margin-left: 20rpx;
+      margin-right: 20rpx;
+    }
   }
   
   .my-logout {
