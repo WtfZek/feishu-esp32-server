@@ -2,9 +2,7 @@ package xiaozhi.modules.sys.entity;
 
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +14,11 @@ import xiaozhi.common.entity.BaseEntity;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_user")
-public class SysUserEntity extends BaseEntity {
+public class SysUserEntity {
+
+    @TableId(type = IdType.ASSIGN_ID)
+    private Long id;
+
     /**
      * 用户名
      */
@@ -33,6 +35,16 @@ public class SysUserEntity extends BaseEntity {
      * 状态 0：停用 1：正常
      */
     private Integer status;
+    /**
+     * 更新者
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private Long creator;
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private Date createDate;
     /**
      * 更新者
      */

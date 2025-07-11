@@ -82,6 +82,61 @@
         </u-form>
       </view>
       
+      <!-- MCP Section -->
+      <view class="mcp-section" v-if="isEdit">
+        <view class="section-title">MCP接入</view>
+        <view class="mcp-content">
+          <!-- 接入点地址 -->
+          <view class="mcp-row">
+            <text class="mcp-label">接入点地址</text>
+            <view class="mcp-value">
+              <u-input
+                v-model="mcpUrl"
+                disabled
+                :customStyle="{ backgroundColor: '#f5f6fa' }"
+              >
+                <template #suffix>
+                  <u-button
+                    size="mini"
+                    type="primary"
+                    @click="copyUrl"
+                    text="复制"
+                    :customStyle="{ margin: '0', height: '44rpx', width: 'auto' }"
+                  ></u-button>
+                </template>
+              </u-input>
+            </view>
+          </view>
+      
+          <!-- 文档链接 -->
+          <!-- <view class="mcp-docs-row">
+            <text class="doc-link" @click="openDocLink('deploy')">如何部署MCP接入点</text>
+            <text class="doc-link" @click="openDocLink('integration')">如何接入MCP功能</text>
+          </view> -->
+      
+          <!-- 接入点状态 -->
+          <view class="mcp-row">
+            <text class="mcp-label">接入点状态</text>
+            <view class="mcp-value">
+              <view class="status-dot" :class="mcpStatus"></view>
+              <text class="status-text">{{ statusText }}</text>
+              <u-button size="mini" icon="reload" :loading="mcpStatus === 'loading'" @click="refreshStatus" :customStyle="{ height: '50rpx', padding: '0 20rpx', margin: 0, width: 'auto', marginLeft: '10rpx' }">刷新</u-button>
+            </view>
+          </view>
+      
+          <!-- 工具列表 -->
+          <view class="mcp-row mcp-row--column">
+            <text class="mcp-label">工具列表：</text>
+            <view class="tools-list" v-if="mcpTools.length > 0">
+              <u-tag v-for="tool in mcpTools" :key="tool" :text="tool" type="primary" class="tool-tag" plain></u-tag>
+            </view>
+            <view class="no-tools" v-else>
+              <text>暂无可用工具</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <view class="loading-overlay" v-if="isLoading">
         <u-loading-icon size="80" mode="circle"></u-loading-icon>
         <text class="loading-text">加载中...</text>
@@ -186,7 +241,23 @@ export default {
       showVoiceSelector: false,
       selectedVoice: '',
       playingVoiceId: null,
-      audioContext: null
+      audioContext: null,
+      mcpUrl: "",
+      mcpStatus: "disconnected",
+      mcpTools: [],
+    }
+  },
+  computed: {
+    statusText() {
+      switch (this.mcpStatus) {
+        case 'connected':
+          return '已连接';
+        case 'loading':
+          return '加载中...';
+        case 'disconnected':
+        default:
+          return '未连接';
+      }
     }
   },
   onLoad(options) {
@@ -195,6 +266,8 @@ export default {
       this.id = options.id;
       this.isEdit = true;
       this.fetchAgentConfig();
+      this.loadMcpAddress();
+      this.loadMcpTools();
     } else {
       // 初始化默认值
       this.initDefaultValues();
@@ -223,6 +296,75 @@ export default {
     }
   },
   methods: {
+    // 加载MCP接入点地址
+    loadMcpAddress() {
+      agentApi.getAgentMcpAccessAddress(this.id).then(res => {
+        this.mcpUrl = res || "";
+        console.log('mcpUrl:', this.mcpUrl);
+      }).catch(err => {
+        this.mcpUrl = "";
+        console.error('获取MCP地址失败:', err);
+      });
+    },
+
+    // 加载MCP工具列表
+    loadMcpTools() {
+      this.mcpStatus = 'loading';
+      agentApi.getAgentMcpToolsList(this.id).then(res => {
+        this.mcpTools = res || [];
+        this.mcpStatus = this.mcpTools.length > 0 ? "connected" : "disconnected";
+      }).catch(err => {
+        this.mcpTools = [];
+        this.mcpStatus = "disconnected";
+        console.error('获取MCP工具列表失败:', err);
+      });
+    },
+
+    // 复制URL
+    copyUrl() {
+      if (!this.mcpUrl) {
+        uni.showToast({
+          title: '没有可复制的地址',
+          icon: 'none'
+        });
+        return;
+      }
+      uni.setClipboardData({
+        data: this.mcpUrl,
+        success: () => {
+          uni.showToast({
+            title: '已复制',
+            icon: 'success'
+          });
+        }
+      });
+    },
+    
+    // 打开文档链接
+    openDocLink(type) {
+      const urls = {
+        deploy: 'https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/mcp-endpoint-enable.md',
+        integration: 'https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/mcp-endpoint-integration.md'
+      };
+      const url = urls[type];
+      if (url) {
+        uni.setClipboardData({
+          data: url,
+          success: () => {
+            uni.showModal({
+              content: '文档地址已复制，请在浏览器中打开。',
+              showCancel: false
+            });
+          }
+        });
+      }
+    },
+
+    // 刷新状态
+    refreshStatus() {
+      this.loadMcpTools();
+    },
+
     // 初始化默认值
     initDefaultValues() {
       this.form.model = {
@@ -810,6 +952,106 @@ export default {
   margin-bottom: 30rpx;
 }
 
+.mcp-section {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+
+  .mcp-content {
+    margin-top: 20rpx;
+    display: flex;
+    flex-direction: column;
+    gap: 30rpx;
+  }
+
+  .mcp-row {
+    display: flex;
+    align-items: center;
+    min-height: 50rpx;
+
+    &--column {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10rpx;
+    }
+  }
+
+  .mcp-label {
+    font-size: 28rpx;
+    color: #3D4566;
+    flex-shrink: 0;
+    margin-right: 20rpx;
+  }
+  
+  .mcp-value {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mcp-url {
+    font-size: 26rpx;
+    color: #666;
+    word-break: break-all;
+    text-align: left;
+    margin-right: 20rpx;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mcp-docs-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 30rpx;
+    margin-top: -20rpx;
+  }
+
+  .doc-link {
+    font-size: 24rpx;
+    color: #5778ff;
+  }
+
+  .status-dot {
+    width: 16rpx;
+    height: 16rpx;
+    border-radius: 50%;
+
+    &.disconnected {
+      background-color: #909399;
+    }
+
+    &.connected {
+      background-color: #5ac725;
+      animation: pulse 1.5s infinite;
+    }
+
+    &.loading {
+      background-color: #ff9900;
+    }
+  }
+
+  .status-text {
+    font-size: 28rpx;
+    color: #333;
+    margin-left: 10rpx;
+  }
+
+  .tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20rpx;
+    margin-top: 10rpx;
+  }
+
+  .no-tools {
+    font-size: 26rpx;
+    color: #999;
+    margin-top: 10rpx;
+  }
+}
+
 .section-title {
   font-size: 30rpx;
   // font-weight: bold;
@@ -971,6 +1213,18 @@ export default {
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(90, 199, 37, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10rpx rgba(90, 199, 37, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(90, 199, 37, 0);
   }
 }
 

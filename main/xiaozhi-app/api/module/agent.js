@@ -124,4 +124,16 @@ export default {
   cloneAgent(id) {
     return http(API.AGENT.CLONE + id, {}, 'POST');
   },
+  
+  // 获取MCP接入点地址
+  getAgentMcpAccessAddress: (id) => {
+    const url = API.AGENT.MCP_ADDRESS.replace('{id}', id);
+    return http(url);
+  },
+  
+  // 获取MCP工具列表
+  getAgentMcpToolsList: (id) => {
+    const url = API.AGENT.MCP_TOOLS.replace('{id}', id);
+    return http(url);
+  },
 }; 

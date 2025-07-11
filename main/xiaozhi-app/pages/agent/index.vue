@@ -37,35 +37,33 @@
         <view v-if="agentList.length > 0">
           <view class="agent-items">
             <view class="agent-item" v-for="(item, index) in agentList" :key="index">
-              <view class="agent-item__header">
-                <view class="agent-item__avatar-name">
-                  <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
-                  <text class="agent-item__name">{{ item.agentName }}</text>
-                </view>
-                <view class="agent-item__actions">
-                  <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
-                </view>
-              </view>
-              <view class="agent-item__content">
-                <view class="agent-item__info">
-                  <view class="agent-item__info-item">
-                    <text class="agent-item__info-label">音色模型：</text>
-                    <text class="agent-item__info-value">{{ item.ttsVoiceName || '未选择' }}</text>
+              <view class="agent-item__top-section">
+                <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+                <view class="agent-item__main">
+                  <view class="agent-item__header">
+                    <text class="agent-item__name">{{ item.agentName }}</text>
+                    <view class="agent-item__actions">
+                      <view
+                        class="publish-status-btn"
+                        :class="item.published ? 'unpublish-btn' : 'publish-btn'"
+                        @click.stop="handlePublishSwitchChange(item, !item.published)"
+                      >
+                        <text>{{ item.published ? '取消发布' : '发布' }}</text>
+                      </view>
+                      <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
+                    </view>
                   </view>
-                  <view class="agent-item__info-item publish-switch-row">
-                    <text class="agent-item__info-label">发布状态：</text>
-                    <view class="publish-switch-value">
-                      <u-switch
-                        v-model="item.published"
-                        :size="24"
-                        activeColor="#5bc98c"
-                        inactiveColor="#e6e6e6"
-                        @change="(value) => handlePublishSwitchChange(item, value)"
-                      ></u-switch>
+                  <view class="agent-item__content">
+                    <view class="agent-item__info">
+                      <view class="agent-item__info-item">
+                        <text class="agent-item__info-label">音色模型：</text>
+                        <text class="agent-item__info-value">{{ item.ttsVoiceName || '未选择' }}</text>
+                      </view>
                     </view>
                   </view>
                 </view>
               </view>
+
               <view class="agent-item__button-group">
                 <view class="agent-item__button" @click="goToConfig(item)">
                   <text>角色配置</text>
@@ -449,28 +447,37 @@ export default {
   .agent-item {
     background-color: #fff;
     border-radius: 20rpx;
-    padding: 30rpx;
+    padding: 20rpx;
     margin-bottom: 30rpx;
     box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  }
+
+  .agent-item__top-section {
+    display: flex;
+    gap: 20rpx;
+    align-items: flex-start;
+  }
+
+  .agent-item {
+    &__avatar {
+      width: 140rpx;
+      height: 140rpx;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      border: 2rpx solid #eaeaea;
+      flex-shrink: 0;
+    }
+    
+    &__main {
+      flex: 1;
+      min-width: 0;
+    }
 
     &__header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    &__avatar-name {
-      display: flex;
-      align-items: center;
-      gap: 20rpx;
-    }
-
-    &__avatar {
-      width: 80rpx;
-      height: 80rpx;
-      border-radius: 50%;
-      background-color: #f0f0f0;
-      border: 2rpx solid #eaeaea;
+      width: 100%;
     }
 
     &__name {
@@ -482,24 +489,25 @@ export default {
     &__actions {
       display: flex;
       align-items: center;
+      gap: 20rpx;
+      flex-shrink: 0;
     }
 
     &__content {
+      margin-top: 20rpx;
       margin-bottom: 30rpx;
-      margin-left: -20rpx;
     }
 
     &__info {
       &-item {
         display: flex;
-        margin-bottom: 16rpx;
+        align-items: center;
       }
 
       &-label {
         font-size: 28rpx;
         color: #666;
-        width: 180rpx;
-        text-align: right;
+        margin-right: 10rpx;
       }
 
       &-value {
@@ -512,6 +520,7 @@ export default {
     &__button-group {
       display: flex;
       gap: 20rpx;
+      margin-top: 10rpx;
       margin-bottom: 20rpx;
     }
 
@@ -523,6 +532,8 @@ export default {
       padding: 10rpx 20rpx;
       border-radius: 28rpx;
       text-align: center;
+      flex: 1;
+      white-space: nowrap;
 
       &--disabled {
         background-color: #e6e6e6;
@@ -540,6 +551,24 @@ export default {
       color: #979db1;
     }
   }
+}
+
+.publish-status-btn {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  font-weight: 500;
+}
+
+.publish-btn {
+  background-color: #2979ff;
+  color: #fff;
+}
+
+.unpublish-btn {
+  background-color: #f0f0f0;
+  color: #999;
 }
 
 // 覆盖u-popup默认样式，防止占用空间
@@ -584,17 +613,5 @@ export default {
       flex: 1;
     }
   }
-}
-
-// 发布状态开关样式
-.publish-switch-row {
-  margin-top: 10rpx;
-  align-items: center;
-}
-
-.publish-switch-value {
-  flex: 1;
-  display: flex;
-  align-items: center;
 }
 </style> 

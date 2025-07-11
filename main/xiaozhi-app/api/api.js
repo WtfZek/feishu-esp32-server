@@ -34,7 +34,9 @@ export const API = {
     CHAT_HISTORY: '/agent/{id}/chat-history/',
     AUDIO: '/agent/audio/',
     PLAY: '/agent/play/',
-    CLONE: '/agent/clone/'
+    CLONE: '/agent/clone/',
+    MCP_ADDRESS: '/agent/mcp/address/{id}',
+    MCP_TOOLS: '/agent/mcp/tools/{id}'
   },
   
   // 设备相关
