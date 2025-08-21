@@ -175,7 +175,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -203,5 +205,17 @@ h3 {
   margin-top: 20px;
   margin-bottom: 10px;
   font-weight: 500;
+}
+
+.dialog-footer, .no-cache-message {
+  .el-button--primary {
+    background-color: $--color-primary;
+    border-color: $--color-primary;
+
+    &:hover, &:focus {
+      background-color: darken($--color-primary, 5%);
+      border-color: darken($--color-primary, 5%);
+    }
+  }
 }
 </style> 

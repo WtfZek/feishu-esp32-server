@@ -489,14 +489,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .welcome {
   min-width: 900px;
   height: 100vh;
   display: flex;
   position: relative;
   flex-direction: column;
-  background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd);
+  background: linear-gradient(to bottom right, mix($--color-primary, #ffffff, 10%), mix($--color-primary, #ffffff, 5%));
   background-size: cover;
   -webkit-background-size: cover;
   -o-background-size: cover;
@@ -571,7 +573,7 @@ export default {
 .header-icon {
   width: 37px;
   height: 37px;
-  background: #5778ff;
+  background: $--color-primary;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -626,18 +628,18 @@ export default {
   height: 4vh;
   width: 76px;
   border-radius: 8px;
-  background: #e6ebff;
+  background: $--color-primary-light;
   line-height: 4vh;
   font-weight: 400;
   font-size: 11px;
   text-align: center;
-  color: #5778ff;
+  color: $--color-primary;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .template-item:hover {
-  background-color: #d0d8ff;
+  background-color: mix($--color-primary, #ffffff, 25%);
 }
 
 .model-select-wrapper {
@@ -730,16 +732,20 @@ export default {
 }
 
 .edit-function-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: $--color-primary-light;
+  color: $--color-primary;
+  border: 1px solid mix($--color-primary, #ffffff, 50%);
   border-radius: 18px;
   padding: 10px 20px;
   transition: all 0.3s;
 }
 
+.edit-function-btn:hover {
+  background-color: mix($--color-primary, #ffffff, 25%);
+}
+
 .edit-function-btn.active-btn {
-  background: #5778ff;
+  background: $--color-primary;
   color: white;
 }
 
@@ -772,7 +778,7 @@ export default {
 }
 
 .header-actions .save-btn {
-  background: #5778ff;
+  background: $--color-primary;
   color: white;
   border: none;
   border-radius: 18px;
@@ -782,9 +788,9 @@ export default {
 }
 
 .header-actions .reset-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: $--color-primary-light;
+  color: $--color-primary;
+  border: 1px solid mix($--color-primary, #ffffff, 50%);
   border-radius: 18px;
   padding: 8px 16px;
   height: 32px;

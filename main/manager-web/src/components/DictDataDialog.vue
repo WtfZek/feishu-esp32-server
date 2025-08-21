@@ -105,9 +105,21 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .dialog-footer {
     text-align: right;
+
+    .el-button--primary {
+        background-color: $--color-primary;
+        border-color: $--color-primary;
+
+        &:hover {
+            background-color: darken($--color-primary, 5%);
+            border-color: darken($--color-primary, 5%);
+        }
+    }
 }
 :deep(.el-dialog) {
     border-radius: 15px;

@@ -342,6 +342,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 ::v-deep .custom-dialog.el-dialog {
   margin-top: 0 !important;
   border-radius: 20px !important;
@@ -374,8 +376,8 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
+  color: $--color-primary;
+  border-color: $--color-primary;
 }
 
 .custom-form .el-form-item {
@@ -403,19 +405,17 @@ export default {
 }
 
 .save-btn {
-  background: #e6f0fd;
-  color: #237ff4;
-  border: 1px solid #b3d1ff;
+  background: $--color-primary;
+  color: white;
+  border: none;
   width: 150px;
   height: 40px;
   font-size: 16px;
   transition: all 0.3s ease;
-}
 
-.save-btn:hover {
-  background: linear-gradient(to right, #237ff4, #9c40d5);
-  color: white;
-  border: none;
+  &:hover {
+    background: darken($--color-primary, 5%);
+  }
 }
 
 .el-table {
@@ -433,5 +433,16 @@ export default {
 
 .el-button.is-circle {
   border-radius: 2px;
+}
+
+.el-button--primary {
+  background-color: $--color-primary;
+  border-color: $--color-primary;
+  color: white;
+
+  &:hover {
+    background-color: darken($--color-primary, 5%);
+    border-color: darken($--color-primary, 5%);
+  }
 }
 </style>

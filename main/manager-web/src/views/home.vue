@@ -8,12 +8,12 @@
         <div class="add-device">
           <div class="add-device-bg">
             <div class="hellow-text" style="margin-top: 30px;">
-              你好，飞鼠智玩
+              飞鼠智玩，让我们在
             </div>
             <div class="hellow-text">
-              让我们度过
-              <div style="display: inline-block;color: #5778FF;">
-                美好的一天！
+              智能海洋中
+              <div style="display: inline-block;color: #FFC107;">
+                遨游与探索！
               </div>
             </div>
             <div class="hi-hint">
@@ -23,7 +23,7 @@
               <div class="left-add" @click="showAddDialog">
                 添加智能体
               </div>
-              <div style="width: 23px;height: 13px;background: #5778ff;margin-left: -10px;" />
+              <div style="width: 23px;height: 13px;background: #FFC107;margin-left: -10px;" />
               <div class="right-add">
                 <i class="el-icon-right" @click="showAddDialog" style="font-size: 20px;color: #fff;" />
               </div>
@@ -182,41 +182,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .welcome {
   min-width: 900px;
   min-height: 506px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(145deg, #e6eeff, #eff0ff);
-  background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
-  background-position: center;
-  /* 从顶部中心对齐 */
-  -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
-  -o-background-size: cover;
-  /* 兼容老版本Opera浏览器 */
-}
-
-.add-device {
-  height: 195px;
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(269.62deg,
-      #e0e6fd 0%,
-      #cce7ff 49.69%,
-      #d3d3fe 100%);
-}
-
-.add-device-bg {
-  width: 100%;
-  height: 100%;
-  text-align: left;
-  background-image: url("@/assets/home/main-top-bg.png");
-  overflow: hidden;
+  background: linear-gradient(145deg, #FFFDE7, #FFF3E0);
   background-size: cover;
   /* 确保背景图像覆盖整个元素 */
   background-position: center;
@@ -233,6 +208,10 @@ export default {
     font-size: 33px;
     font-weight: 700;
     letter-spacing: 0;
+    div {
+      display: inline-block;
+      color: $--color-primary;
+    }
   }
 
   .hi-hint {
@@ -243,6 +222,26 @@ export default {
     margin-left: 75px;
     margin-top: 5px;
   }
+}
+
+.add-device {
+  height: 195px;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(269.62deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 243, 224, 0.4) 49.69%,
+      rgba(255, 224, 178, 0.4) 100%);
+}
+
+.add-device-bg {
+  width: 100%;
+  padding: 0 75px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .add-device-btn {
@@ -256,7 +255,7 @@ export default {
     width: 105px;
     height: 34px;
     border-radius: 17px;
-    background: #5778ff;
+    background: $--color-primary;
     color: #fff;
     font-size: 14px;
     font-weight: 500;
@@ -268,7 +267,7 @@ export default {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: #5778ff;
+    background: $--color-primary;
     margin-left: -6px;
     display: flex;
     justify-content: center;

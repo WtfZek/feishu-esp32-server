@@ -97,7 +97,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .compact-dialog {
   /deep/ .el-dialog__body {
     padding: 20px;
@@ -143,6 +145,17 @@ export default {
 
     .el-button {
       min-width: 80px;
+    }
+
+    .el-button--primary {
+        background-color: $--color-primary;
+        border-color: $--color-primary;
+        color: white;
+
+        &:hover {
+            background-color: darken($--color-primary, 5%);
+            border-color: darken($--color-primary, 5%);
+        }
     }
   }
 }

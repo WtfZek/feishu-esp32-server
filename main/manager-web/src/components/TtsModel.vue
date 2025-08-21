@@ -86,14 +86,14 @@
       </div>
     </div>
     <div class="action-buttons">
-      <el-button type="primary" size="mini" @click="toggleSelectAll" style="background: #606ff3;border: None">
+      <el-button type="primary" size="mini" @click="toggleSelectAll">
         {{ selectAll ? '取消全选' : '全选' }}
       </el-button>
-      <el-button type="primary" size="mini" @click="addNew" style="background: #5bc98c;border: None;">
+      <el-button type="primary" size="mini" @click="addNew">
         新增
       </el-button>
-      <el-button type="primary" size="mini" @click="deleteRow(filteredTtsModels.filter(row => row.selected))"
-        style="background: red;border:None">删除
+      <el-button type="primary" size="mini" @click="deleteRow(filteredTtsModels.filter(row => row.selected))">
+        删除
       </el-button>
     </div>
   </el-dialog>
@@ -515,45 +515,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 ::v-deep .el-dialog {
-  border-radius: 8px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
   overflow: hidden;
-  top: 1vh !important;
 }
 
 ::v-deep .el-dialog__header {
-  display: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  display: none;
 }
 
-/* 表格样式 */
-::v-deep .data-table .el-table__header th {
-  color: black;
-  padding: 6px 0 !important;
+::v-deep .el-dialog__body {
+  padding: 0;
+  border-radius: 20px;
+  background-color: #f7faff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-::v-deep .data-table .el-table__row td {
-  padding: 8px 0 12px !important;
-}
-
-::v-deep .data-table {
-  border: none !important;
-}
-
-::v-deep .data-table.el-table::before {
-  display: none !important;
-}
-
-::v-deep .data-table .el-table__header-wrapper {
-  border-bottom: 2px solid #f1f2fb !important;
-}
-
-::v-deep .data-table .el-table__body-wrapper .el-table__body td {
-  border: none !important;
-}
-
-/* 关闭按钮 */
 .custom-close-btn {
   position: absolute;
   top: 15px;
@@ -573,163 +556,90 @@ export default {
   z-index: 1;
   padding: 0;
   outline: none;
-}
-
-.custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
-}
-
-/* 备注文本 */
-::v-deep .remark-input .el-textarea__inner {
-  border-radius: 4px;
-  border: 1px solid #e6e6e6;
-  padding: 8px 12px;
-  resize: none;
-  max-height: 40px !important;
-  line-height: 1.5;
-  background-color: transparent !important;
-}
-
-::v-deep .remark-input .el-textarea__inner:focus {
-  border-color: #409EFF !important;
-  outline: none;
-}
-
-::v-deep .remark-input .el-textarea__inner::placeholder {
-  color: #c0c4cc !important;
-  opacity: 1;
-}
-
-
-/* 滚动容器 */
-.scroll-wrapper {
-  display: flex;
-  max-height: 55vh;
-  position: relative;
-}
-
-.table-container {
-  flex: 1;
-  overflow: auto;
-  scrollbar-width: none;
-  padding-right: 15px;
-  width: calc(100% - 16px);
-}
-
-.table-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* 自定义滚动条 */
-.custom-scrollbar {
-  width: 8px;
-  background: #f1f1f1;
-  border-radius: 4px;
-  position: relative;
-  margin-left: 8px;
-  height: 100%;
-  top: 55px;
-}
-
-.custom-scrollbar-track {
-  position: relative;
-  height: 380px;
-  cursor: pointer;
-}
-
-.custom-scrollbar-thumb {
-  position: absolute;
-  width: 100%;
-  background: #9dade7;
-  border-radius: 4px;
-  cursor: grab;
-  transition: background 0.2s;
-}
-
-.custom-scrollbar-thumb:hover {
-  background: #6b84d9;
-}
-
-.custom-scrollbar-thumb:active {
-  cursor: grabbing;
-}
-
-.save-Tts {
-  background: #796dea;
-  border: None;
-}
-
-.save-Tts:hover {
-  background: #8b80f0;
-}
-
-.custom-audio-container audio {
-  display: none;
-}
-
-/* 音频播放器容器样式 */
-.custom-audio-container {
-  width: 90%;
-  margin: 0 auto;
-}
-
-.action-buttons .el-button {
-  padding: 8px 15px;
-  font-size: 11px;
-}
-
-.edit-btn,
-.delete-btn,
-.save-btn {
-  margin: 0 8px;
-  color: #7079aa !important;
   transition: all 0.3s;
 }
 
-.edit-btn:hover,
-.delete-btn:hover,
-.save-btn:hover {
-  color: #5f70f3 !important;
-  transform: scale(1.05);
+.custom-close-btn:hover {
+  color: $--color-primary;
+  border-color: $--color-primary;
 }
 
-.save-btn {
-  color: #5cca8e !important;
+.scroll-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: calc(80vh - 60px);
 }
 
-/* 表格单元格自适应 */
-::v-deep .el-table__body-wrapper {
-  overflow-x: hidden !important;
+.table-container {
+  overflow-y: auto;
+  height: 100%;
 }
 
-::v-deep .el-table td {
-  white-space: pre-wrap !important;
-  word-break: break-all !important;
+.data-table {
+  background-color: transparent;
 }
 
-/* 按钮组定位调整 */
+.table-header th {
+  background-color: #f0f4ff !important;
+  color: #333;
+}
+
+.custom-audio-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .action-buttons {
-  position: static;
-  padding: 15px 0;
-  background: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  background-color: #f7faff;
+  border-top: 1px solid #EBEEF5;
 }
 
-/* 输入框自适应 */
-::v-deep .el-input__inner,
-::v-deep .el-textarea__inner {
-  width: 100% !important;
-  min-width: 120px;
+.action-buttons .el-button {
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* 音频输入框特殊处理 */
-.audio-input ::v-deep .el-input__inner {
-  min-width: 200px;
+.action-buttons .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 操作按钮弹性布局 */
-::v-deep .el-table__row .el-button {
-  flex-shrink: 0;
-  margin: 2px !important;
+.action-buttons .el-button:nth-child(1) {
+  background: $--color-primary;
+}
+
+.action-buttons .el-button:nth-child(2) {
+  background: $--color-success;
+}
+
+.action-buttons .el-button:nth-child(3) {
+  background: $--color-danger;
+}
+
+.edit-btn,
+.delete-btn {
+  color: $--color-primary !important;
+  font-weight: 500;
+}
+
+.save-Tts {
+  background-color: $--color-success;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: $--color-primary;
+  border-color: $--color-primary;
 }
 </style>

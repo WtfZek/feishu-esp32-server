@@ -69,7 +69,7 @@
               <template #label>
                 <span style="font-size: 16px; margin-right: 6px;">{{ field.label }}</span>
                 <el-tooltip effect="dark" :content="fieldRemark(field)" placement="top">
-                  <img src="@/assets/home/info.png" alt="" class="info-icon">
+                  <i class="el-icon-info info-icon"></i>
                 </el-tooltip>
               </template>
               <!-- ARRAY -->
@@ -418,6 +418,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .function-manager {
   display: grid;
   grid-template-columns: max-content max-content 1fr;
@@ -449,6 +451,7 @@ export default {
     padding: 0;
     height: auto;
     font-size: 14px;
+    color: $--color-primary;
   }
 }
 
@@ -605,6 +608,8 @@ export default {
   width: 16px;
   height: 16px;
   margin-right: 1vh;
+  color: $--color-primary;
+  cursor: help;
 }
 
 .custom-close-btn {
@@ -631,8 +636,8 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
+  color: $--color-primary;
+  border-color: $--color-primary;
 }
 
 ::v-deep .el-checkbox__label {
@@ -682,7 +687,7 @@ export default {
     margin-bottom: 12px;
 
     .doc-link {
-      color: #1677ff;
+      color: $--color-primary;
       text-decoration: none;
       margin-left: 4px;
 
@@ -717,7 +722,7 @@ export default {
     .inner-copy-btn {
       pointer-events: auto;
       border: none;
-      background: #1677ff;
+      background: $--color-primary;
       color: white;
       padding: 6px;
       margin-top: 4px;
@@ -781,9 +786,9 @@ export default {
     transition: all 0.3s;
 
     &:hover {
-      background: #1677ff;
+      background: $--color-primary;
       color: white;
-      border-color: #1677ff;
+      border-color: $--color-primary;
     }
 
     .refresh-icon {
@@ -818,15 +823,17 @@ export default {
 
   .tool-btn {
     padding: 6px 12px;
-    border-color: #1677ff;
-    color: #1677ff;
-    background-color: white;
+    border-color: $--color-primary;
+    color: $--color-primary;
+    background-color: $--color-primary-light;
     font-size: 12px;
+    border-width: 1px;
+    border-style: solid;
 
     &:hover {
-      background-color: #1677ff;
+      background-color: $--color-primary;
       color: white;
-      border-color: #1677ff;
+      border-color: $--color-primary;
     }
   }
 
@@ -836,5 +843,10 @@ export default {
     font-size: 14px;
     padding: 10px 0;
   }
+}
+
+::v-deep .el-switch.is-checked .el-switch__core {
+  border-color: $--color-primary;
+  background-color: $--color-primary;
 }
 </style>

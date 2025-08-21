@@ -1,90 +1,77 @@
 <template>
-  <div class="welcome">
-    <el-container style="height: 100%;">
-      <el-header>
-        <div style="display: flex;align-items: center;margin-top: 15px;margin-left: 10px;gap: 10px;">
-          <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" style="width: 45px;height: 45px;" />
-          <img loading="lazy" alt="" src="@/assets/xiaozhi-ai.png" style="height: 18px;" />
+  <div class="auth-page-wrapper">
+    <div class="login-container">
+      <el-card class="login-card" shadow="always">
+        <div class="login-header">
+          <img alt="logo" src="@/assets/xiaozhi-logo.png" class="logo-img" />
+          <h1 class="title">欢迎回来</h1>
+          <p class="subtitle">登录以继续使用 飞鼠-ESP32</p>
         </div>
-      </el-header>
-      <div class="login-person">
-        <img loading="lazy" alt="" src="@/assets/login/login-person.png" style="width: 100%;" />
-      </div>
-      <el-main style="position: relative;">
-        <div class="login-box" @keyup.enter="login">
-          <div style="display: flex;align-items: center;gap: 20px;margin-bottom: 39px;padding: 0 30px;">
-            <img loading="lazy" alt="" src="@/assets/login/hi.png" style="width: 34px;height: 34px;" />
-            <div class="login-text">登录</div>
-            <div class="login-welcome">
-              WELCOME TO LOGIN
-            </div>
-          </div>
-          <div style="padding: 0 30px;">
-            <!-- 用户名登录 -->
-            <template v-if="!isMobileLogin">
-              <div class="input-box">
-                <img loading="lazy" alt="" class="input-icon" src="@/assets/login/username.png" />
-                <el-input v-model="form.username" placeholder="请输入用户名" />
-              </div>
-            </template>
 
-            <!-- 手机号登录 -->
-            <template v-else>
-              <div class="input-box">
-                <div style="display: flex; align-items: center; width: 100%;">
-                  <el-select v-model="form.areaCode" style="width: 220px; margin-right: 10px;">
-                    <el-option v-for="item in mobileAreaList" :key="item.key" :label="`${item.name} (${item.key})`"
-                      :value="item.key" />
+        <el-form class="login-form" @keyup.enter.native="login">
+          <!-- 用户名登录 -->
+          <template v-if="!isMobileLogin">
+            <el-form-item>
+              <el-input v-model="form.username" placeholder="请输入用户名" prefix-icon="el-icon-user" size="large" />
+            </el-form-item>
+          </template>
+
+          <!-- 手机号登录 -->
+          <template v-else>
+             <el-form-item>
+                <el-input v-model="form.mobile" placeholder="请输入手机号码" size="large">
+                   <el-select v-model="form.areaCode" slot="prepend" placeholder="区号" style="width: 100px;">
+                    <el-option v-for="item in mobileAreaList" :key="item.key" :label="item.key" :value="item.key" />
                   </el-select>
-                  <el-input v-model="form.mobile" placeholder="请输入手机号码" />
-                </div>
-              </div>
-            </template>
+                </el-input>
+              </el-form-item>
+          </template>
 
-            <div class="input-box">
-              <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
-              <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password />
-            </div>
-            <div style="display: flex; align-items: center; margin-top: 20px; width: 100%; gap: 10px;">
-              <div class="input-box" style="width: calc(100% - 130px); margin-top: 0;">
-                <img loading="lazy" alt="" class="input-icon" src="@/assets/login/shield.png" />
-                <el-input v-model="form.captcha" placeholder="请输入验证码" style="flex: 1;" />
-              </div>
-              <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
-                style="width: 150px; height: 40px; cursor: pointer;" @click="fetchCaptcha" />
-            </div>
-            <div
-              style="font-weight: 400;font-size: 14px;text-align: left;color: #5778ff;display: flex;justify-content: space-between;margin-top: 20px;">
-              <div v-if="allowUserRegister" style="cursor: pointer;" @click="goToRegister">新用户注册</div>
-              <div style="cursor: pointer;" @click="goToForgetPassword" v-if="enableMobileRegister">忘记密码?</div>
-            </div>
-          </div>
-          <div class="login-btn" @click="login">登录</div>
+          <el-form-item>
+            <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password prefix-icon="el-icon-lock" size="large" />
+          </el-form-item>
 
-          <!-- 登录方式切换按钮 -->
-          <div class="login-type-container" v-if="enableMobileRegister">
-            <el-tooltip content="手机号码登录" placement="bottom">
-              <el-button :type="isMobileLogin ? 'primary' : 'default'" icon="el-icon-mobile" circle
-                @click="switchLoginType('mobile')"></el-button>
-            </el-tooltip>
+          <el-form-item>
+            <div class="captcha-wrapper">
+              <el-input v-model="form.captcha" placeholder="请输入验证码" prefix-icon="el-icon-key" size="large" />
+              <img v-if="captchaUrl" :src="captchaUrl" alt="验证码" class="captcha-img" @click="fetchCaptcha" />
+            </div>
+          </el-form-item>
+
+          <el-form-item>
+             <div class="form-actions">
+                <a class="link-text" @click="goToRegister" v-if="allowUserRegister">新用户注册</a>
+                <a class="link-text" @click="goToForgetPassword" v-if="enableMobileRegister">忘记密码?</a>
+             </div>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-button type="primary" class="login-btn" @click="login" size="large">登 录</el-button>
+          </el-form-item>
+        </el-form>
+
+        <div class="login-footer">
+          <div class="login-type-switcher" v-if="enableMobileRegister">
             <el-tooltip content="用户名登录" placement="bottom">
-              <el-button :type="!isMobileLogin ? 'primary' : 'default'" icon="el-icon-user" circle
-                @click="switchLoginType('username')"></el-button>
+              <div class="switcher-icon" :class="{'active': !isMobileLogin}" @click="switchLoginType('username')">
+                <i class="el-icon-user"></i>
+              </div>
+            </el-tooltip>
+             <el-tooltip content="手机号码登录" placement="bottom">
+              <div class="switcher-icon" :class="{'active': isMobileLogin}" @click="switchLoginType('mobile')">
+                 <i class="el-icon-mobile"></i>
+              </div>
             </el-tooltip>
           </div>
-
-          <div style="font-size: 14px;color: #979db1;">
+          <p class="agreement-text">
             登录即同意
-            <div style="display: inline-block;color: #5778FF;cursor: pointer;">《用户协议》</div>
+            <a href="#" class="link-text">《用户协议》</a>
             和
-            <div style="display: inline-block;color: #5778FF;cursor: pointer;">《隐私政策》</div>
-          </div>
+            <a href="#" class="link-text">《隐私政策》</a>
+          </p>
         </div>
-      </el-main>
-      <el-footer>
-        <version-footer />
-      </el-footer>
-    </el-container>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -222,25 +209,160 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-@import './auth.scss';
+@import '~@/styles/variables.scss';
 
-.login-type-container {
-  margin: 10px 20px;
+.login-container {
+  width: 420px;
+  margin: 20px;
 }
 
-:deep(.el-button--primary) {
-  background-color: #5778ff;
-  border-color: #5778ff;
+.login-card {
+  border-radius: 12px;
+  border: 1px solid mix(white, $--color-primary, 90%);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  .logo-img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #37474F;
+    margin: 0 0 5px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #78909C;
+    margin: 0;
+  }
+}
+
+.login-form {
+  .el-form-item {
+    margin-bottom: 22px;
+  }
+
+  ::v-deep .el-input__inner {
+    border-radius: 8px;
+
+    &:focus {
+      border-color: $--color-primary;
+    }
+  }
+
+  ::v-deep .el-select .el-input__inner {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  ::v-deep .el-input-group__append,
+  ::v-deep .el-input-group__prepend {
+    border-radius: 8px;
+    border-color: #DCDFE6;
+  }
+
+  ::v-deep .el-input-group__prepend {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.captcha-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .el-input {
+    flex-grow: 1;
+  }
+
+  .captcha-img {
+    width: 120px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.link-text {
+  font-size: 14px;
+  color: $--color-primary;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.login-btn {
+  width: 100%;
+  border-radius: 8px;
+  background-color: $--color-primary;
+  border-color: $--color-primary;
+  font-size: 16px;
+  font-weight: 500;
 
   &:hover,
   &:focus {
-    background-color: #4a6ae8;
-    border-color: #4a6ae8;
+    background-color: lighten($--color-primary, 5%);
+    border-color: lighten($--color-primary, 5%);
+    color: white;
   }
+}
 
-  &:active {
-    background-color: #3d5cd6;
-    border-color: #3d5cd6;
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: #78909C;
+}
+
+.login-type-switcher {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+
+  .switcher-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0f2f5;
+    color: #78909C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #e4e7ed;
+    }
+
+    &.active {
+      background-color: mix($--color-primary, white, 90%);
+      color: $--color-primary;
+    }
   }
+}
+
+.agreement-text {
+  font-size: 12px;
 }
 </style>

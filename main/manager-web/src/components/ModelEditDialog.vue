@@ -337,31 +337,50 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.custom-dialog {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  background: white;
-  padding-bottom: 17px;
-}
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
 
 .custom-dialog .el-dialog__header {
-  padding: 0;
-  border-bottom: none;
+  display: none;
 }
 
-.center-dialog {
+.custom-dialog .el-dialog__body {
+  padding: 0;
+  border-radius: 10px;
+}
+
+.center-dialog .el-dialog {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  margin: 0 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: calc(100% - 30px);
+  max-width: calc(100% - 30px);
+}
+
+.custom-form {
+  .el-form-item {
+    margin-bottom: 20px;
+  }
+
+  .el-form-item__label {
+    color: #3d4566;
+    font-weight: 500;
+  }
+}
+
+.custom-input-bg .el-input__inner,
+.custom-input-bg .el-textarea__inner {
+  background-color: #f7faff;
 }
 
 .custom-close-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 25px;
+  right: 25px;
   width: 35px;
   height: 35px;
   border-radius: 50%;
@@ -374,133 +393,34 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
   padding: 0;
   outline: none;
+  transition: all 0.3s;
 }
 
 .custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
-}
-
-.custom-select .el-input__suffix {
-  background: #e6e8ea;
-  right: 6px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 9px;
-}
-
-.custom-select .el-input__suffix-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.custom-select .el-icon-arrow-up:before {
-  content: "";
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid #c0c4cc;
-  position: relative;
-  top: -2px;
-  transform: rotate(180deg);
-}
-
-.custom-form .el-form-item {
-  margin-bottom: 20px;
-}
-
-.custom-form .el-form-item__label {
-  color: #3d4566;
-  font-weight: normal;
-  text-align: right;
-  padding-right: 20px;
-}
-
-.custom-form .el-form-item.prop-remark .el-form-item__label {
-  margin-top: -4px;
-}
-
-.custom-input-bg .el-input__inner::-webkit-input-placeholder,
-.custom-input-bg .el-textarea__inner::-webkit-input-placeholder {
-  color: #9c9f9e;
-}
-
-.custom-input-bg .el-input__inner,
-.custom-input-bg .el-textarea__inner {
-  background-color: #f6f8fc;
+  color: $--color-primary;
+  border-color: $--color-primary;
 }
 
 .save-btn {
-  background: #e6f0fd;
-  color: #237ff4;
-  border: 1px solid #b3d1ff;
-  width: 150px;
-  height: 40px;
+  width: 184px;
+  height: 41px;
+  border-radius: 12px;
+  background: $--color-primary;
+  color: white;
   font-size: 16px;
-  transition: all 0.3s ease;
+  border: none;
+  margin: 20px auto 30px;
+  display: block;
 }
 
 .save-btn:hover {
-  background: linear-gradient(to right, #237ff4, #9c40d5);
-  color: white;
-  border: none;
+  background: darken($--color-primary, 5%);
 }
 
-.custom-switch .el-switch__core {
-  border-radius: 20px;
-  height: 23px;
-  background-color: #c0ccda;
-  width: 35px;
-  padding: 0 20px;
-}
-
-.custom-switch .el-switch__core:after {
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  top: 3px;
-  left: 4px;
-  transition: all .3s;
-}
-
-.custom-switch.is-checked .el-switch__core {
-  border-color: #b5bcf0;
-  background-color: #cfd7fa;
-  padding: 0 20px;
-}
-
-.custom-switch.is-checked .el-switch__core:after {
-  left: 100%;
-  margin-left: -18px;
-  background-color: #1b47ee;
-}
-
-[style*="display: flex"] {
-  gap: 20px;
-}
-
-.custom-input-bg .el-input__inner {
-  height: 32px;
-}
-
-.custom-form .el-form-item {
-  margin-bottom: 20px;
-}
-
-.custom-form .el-form-item__label {
-  color: #3d4566;
-  font-weight: normal;
-  text-align: right;
-  padding-right: 20px;
+::v-deep .el-switch.is-checked .el-switch__core {
+  border-color: $--color-primary;
+  background-color: $--color-primary;
 }
 </style>

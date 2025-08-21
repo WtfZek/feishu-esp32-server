@@ -1,100 +1,57 @@
 <template>
-  <div class="welcome" @keyup.enter="retrievePassword">
-    <el-container style="height: 100%;">
-      <!-- 保持相同的头部 -->
-      <el-header>
-        <div style="display: flex;align-items: center;margin-top: 15px;margin-left: 10px;gap: 10px;">
-          <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" style="width: 45px;height: 45px;" />
-          <img loading="lazy" alt="" src="@/assets/xiaozhi-ai.png" style="height: 18px;" />
+  <div class="auth-page-wrapper">
+    <div class="retrieve-container">
+      <el-card class="retrieve-card" shadow="always">
+        <div class="retrieve-header">
+          <h1 class="title">重置密码</h1>
+          <p class="subtitle">我们将通过短信验证码来帮助您重置密码</p>
         </div>
-      </el-header>
-      <div class="login-person">
-        <img loading="lazy" alt="" src="@/assets/login/register-person.png" style="width: 100%;" />
-      </div>
-      <el-main style="position: relative;">
-        <form @submit.prevent="retrievePassword">
-          <div class="login-box">
-            <!-- 修改标题部分 -->
-            <div style="display: flex;align-items: center;gap: 20px;margin-bottom: 39px;padding: 0 30px;">
-              <img loading="lazy" alt="" src="@/assets/login/hi.png" style="width: 34px;height: 34px;" />
-              <div class="login-text">重置密码</div>
-              <div class="login-welcome">
-                PASSWORD RETRIEVE
-              </div>
+
+        <el-form class="retrieve-form" @keyup.enter.native="retrievePassword">
+          <el-form-item>
+            <el-input v-model="form.mobile" placeholder="请输入注册时使用的手机号码" size="large">
+              <el-select v-model="form.areaCode" slot="prepend" placeholder="区号">
+                <el-option v-for="item in mobileAreaList" :key="item.key" :label="item.key" :value="item.key" />
+              </el-select>
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <div class="captcha-wrapper">
+              <el-input v-model="form.captcha" placeholder="请输入图形验证码" prefix-icon="el-icon-key" size="large" />
+              <img v-if="captchaUrl" :src="captchaUrl" alt="验证码" class="captcha-img" @click="fetchCaptcha" />
             </div>
-
-            <div style="padding: 0 30px;">
-              <!-- 手机号输入 -->
-              <div class="input-box">
-                <div style="display: flex; align-items: center; width: 100%;">
-                  <el-select v-model="form.areaCode" style="width: 220px; margin-right: 10px;">
-                    <el-option v-for="item in mobileAreaList" :key="item.key" :label="`${item.name} (${item.key})`"
-                      :value="item.key" />
-                  </el-select>
-                  <el-input v-model="form.mobile" placeholder="请输入手机号码" />
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; margin-top: 20px; width: 100%; gap: 10px;">
-                <div class="input-box" style="width: calc(100% - 130px); margin-top: 0;">
-                  <img loading="lazy" alt="" class="input-icon" src="@/assets/login/shield.png" />
-                  <el-input v-model="form.captcha" placeholder="请输入验证码" style="flex: 1;" />
-                </div>
-                <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
-                  style="width: 150px; height: 40px; cursor: pointer;" @click="fetchCaptcha" />
-              </div>
-
-              <!-- 手机验证码 -->
-              <div style="display: flex; align-items: center; margin-top: 20px; width: 100%; gap: 10px;">
-                <div class="input-box" style="width: calc(100% - 130px); margin-top: 0;">
-                  <img loading="lazy" alt="" class="input-icon" src="@/assets/login/phone.png" />
-                  <el-input v-model="form.mobileCaptcha" placeholder="请输入手机验证码" style="flex: 1;" maxlength="6" />
-                </div>
-                <el-button type="primary" class="send-captcha-btn" :disabled="!canSendMobileCaptcha"
-                  @click="sendMobileCaptcha">
-                  <span>
-                    {{ countdown > 0 ? `${countdown}秒后重试` : '发送验证码' }}
-                  </span>
-                </el-button>
-              </div>
-
-              <!-- 新密码 -->
-              <div class="input-box">
-                <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
-                <el-input v-model="form.newPassword" placeholder="请输入新密码" type="password" show-password />
-              </div>
-
-              <!-- 确认新密码 -->
-              <div class="input-box">
-                <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
-                <el-input v-model="form.confirmPassword" placeholder="请确认新密码" type="password" show-password />
-              </div>
-
-              <!-- 修改底部链接 -->
-              <div style="font-weight: 400;font-size: 14px;text-align: left;color: #5778ff;margin-top: 20px;">
-                <div style="cursor: pointer;" @click="goToLogin">返回登录</div>
-              </div>
+          </el-form-item>
+          <el-form-item>
+            <div class="captcha-wrapper">
+              <el-input v-model="form.mobileCaptcha" placeholder="请输入手机验证码" prefix-icon="el-icon-message"
+                size="large" />
+              <el-button type="primary" class="send-captcha-btn" :disabled="!canSendMobileCaptcha"
+                @click="sendMobileCaptcha">
+                {{ countdown > 0 ? `${countdown}s` : '发送验证码' }}
+              </el-button>
             </div>
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="form.newPassword" placeholder="请输入新密码" type="password" show-password
+              prefix-icon="el-icon-lock" size="large" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="form.confirmPassword" placeholder="请确认新密码" type="password" show-password
+              prefix-icon="el-icon-lock" size="large" />
+          </el-form-item>
 
-            <!-- 修改按钮文本 -->
-            <div class="login-btn" @click="retrievePassword">立即修改</div>
-
-            <!-- 保持相同的协议声明 -->
-            <div style="font-size: 14px;color: #979db1;">
-              同意
-              <div style="display: inline-block;color: #5778FF;cursor: pointer;">《用户协议》</div>
-              和
-              <div style="display: inline-block;color: #5778FF;cursor: pointer;">《隐私政策》</div>
+          <el-form-item>
+            <div class="form-actions">
+              <a class="link-text" @click="goToLogin">返回登录</a>
             </div>
-          </div>
-        </form>
-      </el-main>
+          </el-form-item>
 
-      <!-- 保持相同的页脚 -->
-      <el-footer>
-        <version-footer />
-      </el-footer>
-    </el-container>
+          <el-form-item>
+            <el-button type="primary" class="retrieve-btn" @click="retrievePassword" size="large">立即修改</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -105,13 +62,12 @@ import { getUUID, goToPage, showDanger, showSuccess, validateMobile } from '@/ut
 import { mapState } from 'vuex';
 
 export default {
-  name: 'retrieve',
+  name: 'retrievePassword',
   components: {
     VersionFooter
   },
   computed: {
     ...mapState({
-      allowUserRegister: state => state.pubConfig.allowUserRegister,
       mobileAreaList: state => state.pubConfig.mobileAreaList
     }),
     canSendMobileCaptcha() {
@@ -125,7 +81,7 @@ export default {
         mobile: '',
         captcha: '',
         captchaId: '',
-        smsCode: '',
+        mobileCaptcha: '', //
         newPassword: '',
         confirmPassword: ''
       },
@@ -143,11 +99,12 @@ export default {
       this.form.captchaId = getUUID();
       Api.user.getCaptcha(this.form.captchaId, (res) => {
         if (res.status === 200) {
-          const blob = new Blob([res.data], { type: res.data.type });
+          const blob = new Blob([res.data], {
+            type: res.data.type
+          });
           this.captchaUrl = URL.createObjectURL(blob);
 
         } else {
-          console.error('验证码加载异常:', error);
           showDanger('验证码加载失败，点击刷新');
         }
       });
@@ -202,6 +159,10 @@ export default {
       }, (err) => {
         showDanger(err.data.msg || '验证码发送失败');
         this.countdown = 0;
+        if (this.timer) {
+          clearInterval(this.timer);
+          this.timer = null;
+        }
         this.fetchCaptcha();
       });
     },
@@ -213,12 +174,13 @@ export default {
         showDanger('请输入正确的手机号码');
         return;
       }
-      if (!this.form.captcha) {
-        showDanger('请输入图形验证码');
+      if (!this.validateInput(this.form.captcha, '请输入图形验证码')) {
         return;
       }
-      if (!this.form.mobileCaptcha) {
-        showDanger('请输入短信验证码');
+      if (!this.validateInput(this.form.mobileCaptcha, '请输入短信验证码')) {
+        return;
+      }
+      if (!this.validateInput(this.form.newPassword, '请输入新密码')) {
         return;
       }
       if (this.form.newPassword !== this.form.confirmPassword) {
@@ -232,12 +194,12 @@ export default {
         code: this.form.mobileCaptcha
       }, (res) => {
         showSuccess('密码重置成功');
-        goToPage('/login');
+        setTimeout(() => {
+          goToPage('/login');
+        }, 1500);
       }, (err) => {
         showDanger(err.data.msg || '重置失败');
-        if (err.data != null && err.data.msg != null && err.data.msg.indexOf('图形验证码') > -1) {
-          this.fetchCaptcha()
-        }
+        this.fetchCaptcha();
       });
     },
 
@@ -254,22 +216,115 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import './auth.scss';
+@import '~@/styles/variables.scss';
+
+.retrieve-container {
+  width: 450px;
+  margin: 20px;
+}
+
+.retrieve-card {
+  border-radius: 12px;
+  border: 1px solid mix(white, $--color-primary, 90%);
+  padding: 20px;
+}
+
+.retrieve-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #37474F;
+    margin: 0 0 5px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #78909C;
+    margin: 0;
+  }
+}
+
+.retrieve-form {
+  ::v-deep .el-input__inner {
+    border-radius: 8px;
+
+    &:focus {
+      border-color: $--color-primary;
+    }
+  }
+
+  ::v-deep .el-select .el-input {
+    width: 110px;
+  }
+
+  ::v-deep .el-input-group__prepend {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-color: #DCDFE6;
+  }
+}
+
+.captcha-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .captcha-img {
+    height: 40px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+}
 
 .send-captcha-btn {
-  margin-right: -5px;
-  min-width: 100px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 4px;
-  font-size: 14px;
-  background: rgb(87, 120, 255);
-  border: none;
-  padding: 0;
+  white-space: nowrap;
+  background-color: $--color-primary;
+  border-color: $--color-primary;
 
-  &:disabled {
-    background: #c0c4cc;
-    cursor: not-allowed;
+  &:hover,
+  &:focus {
+    background-color: lighten($--color-primary, 5%);
+    border-color: lighten($--color-primary, 5%);
+    color: white;
+  }
+
+  &.is-disabled {
+    background-color: mix(white, $--color-primary, 50%);
+    border-color: mix(white, $--color-primary, 50%);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.link-text {
+  color: $--color-primary;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.retrieve-btn {
+  width: 100%;
+  border-radius: 8px;
+  background-color: $--color-primary;
+  border-color: $--color-primary;
+  font-size: 16px;
+  font-weight: 500;
+
+  &:hover,
+  &:focus {
+    background-color: lighten($--color-primary, 5%);
+    border-color: lighten($--color-primary, 5%);
+    color: white;
   }
 }
 </style>

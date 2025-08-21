@@ -154,10 +154,12 @@ export default {
 </style>
 
 <style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .param-dialog-wrapper {
   .dialog-container {
     padding: 24px 32px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, mix($--color-primary, white, 5%) 0%, mix($--color-primary, white, 2%) 100%);
   }
 
   .dialog-header {
@@ -233,8 +235,8 @@ export default {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
         &:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          border-color: $--color-primary;
+          box-shadow: 0 0 0 3px mix($--color-primary, transparent, 20%);
           background-color: #ffffff;
         }
 
@@ -259,8 +261,8 @@ export default {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
         &:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          border-color: $--color-primary;
+          box-shadow: 0 0 0 3px mix($--color-primary, transparent, 20%);
           background-color: #ffffff;
         }
 
@@ -284,8 +286,8 @@ export default {
         line-height: 1.5;
 
         &:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          border-color: $--color-primary;
+          box-shadow: 0 0 0 3px mix($--color-primary, transparent, 20%);
           background-color: #ffffff;
         }
 
@@ -314,21 +316,21 @@ export default {
       font-weight: 500;
       border-radius: 8px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: #3b82f6;
+      background: $--color-primary;
       color: white;
       border: none;
       letter-spacing: 0.5px;
-      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 2px 4px mix($--color-primary, transparent, 20%);
 
       &:hover {
-        background: #2563eb;
+        background: darken($--color-primary, 5%);
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 6px mix($--color-primary, transparent, 30%);
       }
 
       &:active {
         transform: translateY(0);
-        box-shadow: 0 2px 3px rgba(59, 130, 246, 0.2);
+        box-shadow: 0 2px 3px mix($--color-primary, transparent, 20%);
       }
     }
 

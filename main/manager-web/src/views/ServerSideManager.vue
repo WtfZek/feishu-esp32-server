@@ -167,43 +167,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .welcome {
-  min-width: 900px;
-  min-height: 506px;
-  height: 100vh;
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  background-size: cover;
-  background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd) center;
-  -webkit-background-size: cover;
-  -o-background-size: cover;
-  overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, mix(white, $--color-primary, 80%), #fcfaf3);
+    overflow: hidden;
 }
 
 .main-wrapper {
-  margin: 5px 22px;
-  border-radius: 15px;
-  min-height: calc(100vh - 24vh);
-  height: auto;
-  max-height: 80vh;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  position: relative;
-  background: rgba(237, 242, 255, 0.5);
-  display: flex;
-  flex-direction: column;
+    flex: 1;
+    margin: 0 22px 22px;
+    border-radius: 15px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    background: rgba(253, 250, 241, 0.8);
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
 }
 
 .operation-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
 }
 
 .page-title {
-  font-size: 24px;
-  margin: 0;
+    font-size: 24px;
+    margin: 0;
+    font-weight: 600;
 }
 
 .right-operations {
@@ -223,41 +218,41 @@ export default {
 }
 
 .content-panel {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  height: 100%;
-  border-radius: 15px;
-  background: transparent;
-  border: 1px solid #fff;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+    border-radius: 15px;
+    background: transparent;
 }
 
 .content-area {
-  flex: 1;
-  height: 100%;
-  min-width: 600px;
-  overflow: auto;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-width: 600px;
+    overflow: auto;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
 }
 
 .params-card {
-  background: white;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border: none;
-  box-shadow: none;
-  overflow: hidden;
-
-  ::v-deep .el-card__body {
-    padding: 15px;
+    background: white;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    flex: 1;
+    border: none;
+    box-shadow: none;
     overflow: hidden;
-  }
+
+    ::v-deep .el-card__body {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
 }
 
 .table_bottom {
@@ -302,40 +297,40 @@ export default {
   }
 }
 
-:deep(.transparent-table) {
-  background: white;
-  flex: 1;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-
-  .el-table__body-wrapper {
+.transparent-table {
+    background: white;
     flex: 1;
-    overflow-y: auto;
-    max-height: none !important;
-  }
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 
-  .el-table__header-wrapper {
-    flex-shrink: 0;
-  }
-
-  .el-table__header th {
-    background: white !important;
-    color: black;
-  }
-
-  &::before {
-    display: none;
-  }
-
-  .el-table__body tr {
-    background-color: white;
-
-    td {
-      border-top: 1px solid rgba(0, 0, 0, 0.04);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    .el-table__body-wrapper {
+        flex: 1;
+        overflow-y: auto;
     }
-  }
+
+    .el-table__header-wrapper {
+        flex-shrink: 0;
+    }
+
+    .el-table__header th {
+        background: white !important;
+        color: black;
+        font-weight: 600;
+    }
+
+    &::before {
+        display: none;
+    }
+
+    .el-table__body tr {
+        background-color: white;
+
+        td {
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+    }
 }
 
 
@@ -345,12 +340,12 @@ export default {
 }
 
 :deep(.el-checkbox__inner:hover) {
-  border-color: #cccccc !important;
+  border-color: $--color-primary !important;
 }
 
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: #5f70f3 !important;
-  border-color: #5f70f3 !important;
+    background-color: $--color-primary !important;
+    border-color: $--color-primary !important;
 }
 
 @media (min-width: 1144px) {
@@ -376,7 +371,11 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+    color: $--color-primary !important;
+
+    &:hover {
+        color: darken($--color-primary, 10%) !important;
+    }
 }
 
 :deep(.el-table .el-button--text:hover) {
@@ -454,8 +453,8 @@ export default {
 }
 
 :deep(.el-loading-mask) {
-  background-color: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(2px);
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(2px);
 }
 
 :deep(.el-loading-spinner .circular) {
@@ -464,7 +463,7 @@ export default {
 }
 
 :deep(.el-loading-spinner .path) {
-  stroke: #6b8cff;
+    stroke: $--color-primary;
 }
 
 :deep(.el-loading-text) {

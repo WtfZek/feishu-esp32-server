@@ -343,6 +343,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .welcome {
   min-width: 900px;
   min-height: 506px;
@@ -351,7 +353,7 @@ export default {
   position: relative;
   flex-direction: column;
   background-size: cover;
-  background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd) center;
+  background: linear-gradient(to bottom right, mix($--color-primary, #ffffff, 10%), mix($--color-primary, #ffffff, 5%)) center;
   -webkit-background-size: cover;
   -o-background-size: cover;
   overflow: hidden;
@@ -365,7 +367,7 @@ export default {
   max-height: 80vh;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   position: relative;
-  background: rgba(237, 242, 255, 0.5);
+  background: rgba(255, 253, 247, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -393,7 +395,7 @@ export default {
 }
 
 .btn-search {
-  background: linear-gradient(135deg, #6b8cff, #a966ff);
+  background: $--color-primary;
   border: none;
   color: white;
 }
@@ -467,7 +469,7 @@ export default {
   }
 
   .el-button--primary {
-    background: #5f70f3;
+    background: $--color-primary;
     color: white;
   }
 
@@ -512,14 +514,14 @@ export default {
     padding: 0 12px;
     border-radius: 4px;
     border: 1px solid #e4e7ed;
-    background: #dee7ff;
+    background: $--color-primary-light;
     color: #606266;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
 
     &:hover {
-      background: #d7dce6;
+      background: mix($--color-primary, #ffffff, 25%);
     }
 
     &:disabled {
@@ -546,12 +548,12 @@ export default {
   }
 
   .pagination-btn.active {
-    background: #5f70f3 !important;
+    background: $--color-primary !important;
     color: #ffffff !important;
-    border-color: #5f70f3 !important;
+    border-color: $--color-primary !important;
 
     &:hover {
-      background: #6d7cf5 !important;
+      background: darken($--color-primary, 5%) !important;
     }
   }
 
@@ -599,11 +601,11 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa !important;
+  color: $--color-primary !important;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5 !important;
+  color: darken($--color-primary, 10%) !important;
 }
 
 
@@ -617,8 +619,8 @@ export default {
 }
 
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: #5f70f3 !important;
-  border-color: #5f70f3 !important;
+  background-color: $--color-primary !important;
+  border-color: $--color-primary !important;
 }
 
 @media (min-width: 1144px) {
@@ -652,7 +654,7 @@ export default {
     line-height: 32px;
     border-radius: 4px;
     border: 1px solid #e4e7ed;
-    background: #dee7ff;
+    background: $--color-primary-light;
     color: #606266;
     font-size: 14px;
   }
@@ -707,11 +709,11 @@ export default {
 }
 
 :deep(.el-loading-spinner .path) {
-  stroke: #6b8cff;
+  stroke: $--color-primary;
 }
 
 :deep(.el-loading-text) {
-  color: #6b8cff !important;
+  color: $--color-primary !important;
   font-size: 14px;
   margin-top: 8px;
 }

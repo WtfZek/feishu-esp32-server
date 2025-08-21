@@ -76,7 +76,7 @@
                 <el-button size="mini" type="primary" class="select-all-btn" @click="handleSelectAll">
                   {{ isAllSelected ? '取消全选' : '全选' }}
                 </el-button>
-                <el-button type="success" size="mini" class="add-device-btn" @click="handleAddDevice">
+                <el-button type="success" size="mini" class="add-device-btn add-by-code-btn" @click="handleAddDevice">
                   验证码绑定
                 </el-button>
                 <el-button type="success" size="mini" class="add-device-btn" @click="handleManualAddDevice">
@@ -395,7 +395,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .welcome {
   min-width: 900px;
   min-height: 506px;
@@ -403,7 +405,7 @@ export default {
   display: flex;
   position: relative;
   flex-direction: column;
-  background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd);
+  background: linear-gradient(to bottom right, mix($--color-primary, #ffffff, 10%), mix($--color-primary, #ffffff, 5%));
   background-size: cover;
   -webkit-background-size: cover;
   -o-background-size: cover;
@@ -417,7 +419,7 @@ export default {
   max-height: 80vh;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   position: relative;
-  background: rgba(237, 242, 255, 0.5);
+  background: rgba(255, 253, 247, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -447,7 +449,7 @@ export default {
 }
 
 .btn-search {
-  background: linear-gradient(135deg, #6b8cff, #a966ff);
+  background: $--color-primary;
   border: none;
   color: white;
 }
@@ -469,7 +471,7 @@ export default {
   line-height: 32px;
   border-radius: 4px;
   border: 1px solid #e4e7ed;
-  background: #dee7ff;
+  background: $--color-primary-light;
   color: #606266;
   font-size: 14px;
 }
@@ -504,7 +506,7 @@ export default {
 }
 
 ::v-deep .search-input .el-input__inner:focus {
-  border-color: #6b8cff;
+  border-color: $--color-primary;
   outline: none;
 }
 
@@ -580,13 +582,17 @@ export default {
 }
 
 .ctrl_btn .el-button--primary {
-  background: #5f70f3;
+  background: $--color-primary;
   color: white;
 }
 
 .ctrl_btn .el-button--success {
   background: #5bc98c;
   color: white;
+}
+
+.ctrl_btn .add-by-code-btn {
+  background: #5f70f3;
 }
 
 .ctrl_btn .el-button--danger {
@@ -613,7 +619,7 @@ export default {
   padding: 0 12px;
   border-radius: 4px;
   border: 1px solid #e4e7ed;
-  background: #dee7ff;
+  background: $--color-primary-light;
   color: #606266;
   font-size: 14px;
   cursor: pointer;
@@ -624,7 +630,7 @@ export default {
 .custom-pagination .pagination-btn:nth-child(2):hover,
 .custom-pagination .pagination-btn:nth-last-child(2):hover,
 .custom-pagination .pagination-btn:nth-child(3):hover {
-  background: #d7dce6;
+  background: mix($--color-primary, #ffffff, 25%);
 }
 
 .custom-pagination .pagination-btn:disabled {
@@ -650,13 +656,13 @@ export default {
 }
 
 .custom-pagination .pagination-btn.active {
-  background: #5f70f3 !important;
+  background: $--color-primary !important;
   color: #ffffff !important;
-  border-color: #5f70f3 !important;
+  border-color: $--color-primary !important;
 }
 
 .custom-pagination .pagination-btn.active:hover {
-  background: #6d7cf5 !important;
+  background: darken($--color-primary, 5%) !important;
 }
 
 .custom-pagination .total-text {
@@ -688,12 +694,12 @@ export default {
 }
 
 :deep(.el-icon-edit) {
-  color: #7079aa;
+  color: $--color-primary;
   cursor: pointer;
 }
 
 :deep(.el-icon-edit:hover) {
-  color: #5a64b5;
+  color: darken($--color-primary, 10%);
 }
 
 :deep(.custom-selection-header .el-checkbox) {
@@ -702,11 +708,11 @@ export default {
 
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: $--color-primary;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: darken($--color-primary, 10%);
 }
 
 :deep(.transparent-table) {
@@ -747,8 +753,8 @@ export default {
 }
 
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: #5f70f3 !important;
-  border-color: #5f70f3 !important;
+  background-color: $--color-primary !important;
+  border-color: $--color-primary !important;
 }
 
 ::v-deep .el-table--border::after,

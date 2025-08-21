@@ -37,19 +37,13 @@
         <view v-if="agentList.length > 0">
           <view class="agent-items">
             <view class="agent-item" v-for="(item, index) in agentList" :key="index">
-              <view class="agent-item__top-section">
-                <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+              <image class="agent-item__avatar" :src="item.agentAvatar || '/static/avatar/default_toy_avatar.jpeg'" mode="aspectFit"></image>
+              
+              <view class="agent-item__right-panel">
                 <view class="agent-item__main">
                   <view class="agent-item__header">
                     <text class="agent-item__name">{{ item.agentName }}</text>
                     <view class="agent-item__actions">
-                      <view
-                        class="publish-status-btn"
-                        :class="item.published ? 'unpublish-btn' : 'publish-btn'"
-                        @click.stop="handlePublishSwitchChange(item, !item.published)"
-                      >
-                        <text>{{ item.published ? '取消发布' : '发布' }}</text>
-                      </view>
                       <u-icon name="trash" size="54rpx" color="#FF5B8F" @click.stop="confirmDelete(item)"></u-icon>
                     </view>
                   </view>
@@ -62,21 +56,28 @@
                     </view>
                   </view>
                 </view>
-              </view>
 
-              <view class="agent-item__button-group">
-                <view class="agent-item__button" @click="goToConfig(item)">
-                  <text>角色配置</text>
+                <view class="agent-item__button-group">
+                  <view class="agent-item__button" @click="goToConfig(item)">
+                    <text>角色配置</text>
+                  </view>
+                  <view class="agent-item__button" @click="goToDeviceManage(item)">
+                    <text>设备管理({{ item.deviceCount || 0 }})</text>
+                  </view>
+                  <view class="agent-item__button" :class="{'agent-item__button--disabled': item.memModelId === 'Memory_nomem'}" @click="goToChatHistory(item)">
+                    <text>聊天记录</text>
+                  </view>
+                  <view 
+                      class="agent-item__button"
+                      :class="item.published ? 'unpublish-style' : 'publish-style'"
+                      @click.stop="handlePublishSwitchChange(item, !item.published)">
+                      <text>{{ item.published ? '取消发布' : '发布' }}</text>
+                  </view>
                 </view>
-                <view class="agent-item__button" @click="goToDeviceManage(item)">
-                  <text>设备管理({{ item.deviceCount || 0 }})</text>
+
+                <view class="agent-item__footer">
+                  <text class="agent-item__time" v-if="item.lastConnectedAt">最近连接: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD HH:mm') }}</text>
                 </view>
-                <view class="agent-item__button" :class="{'agent-item__button--disabled': item.memModelId === 'Memory_nomem'}" @click="goToChatHistory(item)">
-                  <text>聊天记录</text>
-                </view>
-              </view>
-              <view class="agent-item__footer">
-                <text class="agent-item__time" v-if="item.lastConnectedAt">最近连接: {{ $filters.formatDate(item.lastConnectedAt, 'YYYY-MM-DD HH:mm') }}</text>
               </view>
             </view>
             <view style="height: 30rpx;"></view>
@@ -447,30 +448,33 @@ export default {
   .agent-item {
     background-color: #fff;
     border-radius: 20rpx;
-    padding: 20rpx;
+    padding: 30rpx;
     margin-bottom: 30rpx;
     box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  }
-
-  .agent-item__top-section {
     display: flex;
-    gap: 20rpx;
-    align-items: flex-start;
+    gap: 30rpx;
+    align-items: center;
   }
 
   .agent-item {
     &__avatar {
-      width: 140rpx;
-      height: 140rpx;
-      border-radius: 50%;
+      width: 160rpx;
+      height: 160rpx;
+      border-radius: 20rpx;
       background-color: #f0f0f0;
       border: 2rpx solid #eaeaea;
       flex-shrink: 0;
     }
-    
-    &__main {
+
+    &__right-panel {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &__main {
+      /* main content area */
     }
 
     &__header {
@@ -489,13 +493,12 @@ export default {
     &__actions {
       display: flex;
       align-items: center;
-      gap: 20rpx;
       flex-shrink: 0;
     }
 
     &__content {
-      margin-top: 20rpx;
-      margin-bottom: 30rpx;
+      margin-top: 15rpx;
+      margin-bottom: 20rpx;
     }
 
     &__info {
@@ -519,21 +522,23 @@ export default {
 
     &__button-group {
       display: flex;
-      gap: 20rpx;
-      margin-top: 10rpx;
+      flex-wrap: wrap;
+      gap: 15rpx;
       margin-bottom: 20rpx;
     }
 
     &__button {
       background-color: #e6ebff;
       color: #5778ff;
-      font-size: 26rpx;
+      font-size: 24rpx;
       font-weight: 500;
-      padding: 10rpx 20rpx;
+      padding: 12rpx 0;
       border-radius: 28rpx;
       text-align: center;
-      flex: 1;
+      flex-grow: 1;
+      flex-basis: calc(50% - 8rpx);
       white-space: nowrap;
+      box-sizing: border-box;
 
       &--disabled {
         background-color: #e6e6e6;
@@ -544,6 +549,7 @@ export default {
     &__footer {
       display: flex;
       justify-content: flex-end;
+      margin-top: auto;
     }
 
     &__time {
@@ -553,22 +559,14 @@ export default {
   }
 }
 
-.publish-status-btn {
-  font-size: 24rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 20rpx;
-  text-align: center;
-  font-weight: 500;
+.publish-style {
+  background-color: #2979ff !important;
+  color: #fff !important;
 }
 
-.publish-btn {
-  background-color: #2979ff;
-  color: #fff;
-}
-
-.unpublish-btn {
-  background-color: #f0f0f0;
-  color: #999;
+.unpublish-style {
+  background-color: #f0f0f0 !important;
+  color: #999 !important;
 }
 
 // 覆盖u-popup默认样式，防止占用空间

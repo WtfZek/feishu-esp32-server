@@ -223,6 +223,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .header {
   background: #f6fcfe66;
   border: 1px solid #fff;
@@ -276,7 +278,7 @@ export default {
 .equipment-management {
   height: 30px;
   border-radius: 15px;
-  background: #deeafe;
+  background: $--color-primary-light;
   display: flex;
   justify-content: center;
   font-size: 14px;
@@ -293,9 +295,14 @@ export default {
   position: relative;
 }
 
+.equipment-management:not(.active-tab):hover {
+  background-color: mix($--color-primary, #ffffff, 25%);
+}
+
 .equipment-management.active-tab {
-  background: #5778ff !important;
-  color: #fff !important;
+  background-color: $--color-primary;
+  color: white;
+  /* 激活时文字颜色 */
 }
 
 .equipment-management img {

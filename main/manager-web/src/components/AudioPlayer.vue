@@ -243,9 +243,11 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .audio-container {
-  background: #eef0fd;
+  background: $--color-primary-light;
   padding: 8px;
   height: 40px;
   display: flex;
@@ -267,11 +269,15 @@ onUnmounted(() => {
   cursor: pointer;
   display: flex;
   align-items: center;
+
+  svg path {
+    fill: $--color-primary;
+  }
 }
 
 .time-display {
   font-size: 12px;
-  color: #5f7ba7;
+  color: darken($--color-primary, 20%);
   min-width: 40px;
   text-align: center;
 }
@@ -297,15 +303,15 @@ onUnmounted(() => {
 .progress-track {
   position: absolute;
   height: 100%;
-  background: #4167ed;
+  background: $--color-primary;
 }
 
 .progress-thumb {
   position: absolute;
   width: 12px;
   height: 12px;
-  background: #4167ed;
-  border: 2px solid #d6dcfc;
+  background: $--color-primary;
+  border: 2px solid mix($--color-primary, white, 50%);
   border-radius: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -321,14 +327,14 @@ onUnmounted(() => {
   background: none;
   border: none;
   padding: 0;
-  color: #8f95cd;
+  color: $--color-primary;
   cursor: pointer;
 }
 
 .volume-slider-container {
   position: fixed;
   padding: 10px 4px;
-  background: #eef0fd;
+  background: $--color-primary-light;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -348,8 +354,8 @@ onUnmounted(() => {
   left: 1px;
   width: 9px;
   height: 9px;
-  background: #4167ed;
-  border: 2px solid #d6dcfc;
+  background: $--color-primary;
+  border: 2px solid mix($--color-primary, white, 50%);
   border-radius: 50%;
   transform: translateX(-50%);
   pointer-events: none;
@@ -374,6 +380,6 @@ onUnmounted(() => {
   bottom: 0;
   width: 2px;
   height: calc(100% * v-bind(volume));
-  background: #4167ed;
+  background: $--color-primary;
 }
 </style>

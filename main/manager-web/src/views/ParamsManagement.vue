@@ -329,46 +329,40 @@ export default {
             this.fetchParams();
         },
         isSensitiveParam(paramCode) {
-            return this.sensitive_keys.some(key => paramCode.toLowerCase().includes(key.toLowerCase()));
+            return this.sensitive_keys.some(key => paramCode.toLowerCase().includes(key));
         },
         maskSensitiveValue(value) {
-            if (!value) return '';
-            if (value.length <= 8) return '****';
-            return value.substring(0, 4) + '****' + value.substring(value.length - 4);
+            if (typeof value !== 'string' || value.length <= 6) {
+                return '******';
+            }
+            return `${value.substring(0, 3)}******${value.substring(value.length - 3)}`;
         },
         toggleSensitiveValue(row) {
             this.$set(row, 'showValue', !row.showValue);
-        },
+        }
     },
 };
 </script>
-
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 .welcome {
-    min-width: 900px;
-    min-height: 506px;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
-    position: relative;
     flex-direction: column;
-    background-size: cover;
-    background: linear-gradient(to bottom right, #dce8ff, #e4eeff, #e6cbfd) center;
-    -webkit-background-size: cover;
-    -o-background-size: cover;
+    background: linear-gradient(to bottom, mix(white, $--color-primary, 80%), #fcfaf3);
     overflow: hidden;
 }
 
 .main-wrapper {
-    margin: 5px 22px;
+    flex: 1;
+    margin: 0 22px 22px;
     border-radius: 15px;
-    min-height: calc(100vh - 24vh);
-    height: auto;
-    max-height: 80vh;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    position: relative;
-    background: rgba(237, 242, 255, 0.5);
+    background: rgba(253, 250, 241, 0.8);
     display: flex;
-    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
 }
 
 .operation-bar {
@@ -381,12 +375,12 @@ export default {
 .page-title {
     font-size: 24px;
     margin: 0;
+    font-weight: 600;
 }
 
 .right-operations {
     display: flex;
     gap: 10px;
-    margin-left: auto;
 }
 
 .search-input {
@@ -394,9 +388,13 @@ export default {
 }
 
 .btn-search {
-    background: linear-gradient(135deg, #6b8cff, #a966ff);
+    background: $--color-primary;
     border: none;
     color: white;
+
+    &:hover {
+        background: lighten($--color-primary, 5%);
+    }
 }
 
 .content-panel {
@@ -406,17 +404,17 @@ export default {
     height: 100%;
     border-radius: 15px;
     background: transparent;
-    border: 1px solid #fff;
 }
 
 .content-area {
     flex: 1;
     height: 100%;
     min-width: 600px;
-    overflow: auto;
+    overflow: hidden;
     background-color: white;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
 }
 
 .params-card {
@@ -451,25 +449,21 @@ export default {
     padding-left: 26px;
 
     .el-button {
-        min-width: 72px;
-        height: 32px;
-        padding: 7px 12px 7px 10px;
-        font-size: 12px;
-        border-radius: 4px;
-        line-height: 1;
-        font-weight: 500;
         border: none;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
-        &:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
     }
 
     .el-button--primary {
-        background: #5f70f3;
+        background: $--color-primary;
+        color: white;
+
+        &:hover {
+            background: lighten($--color-primary, 5%);
+        }
+    }
+
+    .el-button--success {
+        background: #5bc98c;
         color: white;
     }
 
@@ -482,29 +476,33 @@ export default {
 .custom-pagination {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
 
-    .el-select {
-        margin-right: 8px;
+    .page-size-select {
+        width: 100px;
     }
 
-    .pagination-btn:first-child,
-    .pagination-btn:nth-child(2),
-    .pagination-btn:nth-last-child(2),
-    .pagination-btn:nth-child(3) {
-        min-width: 60px;
+    .pagination-btn {
+        min-width: 32px;
         height: 32px;
-        padding: 0 12px;
+        padding: 0 6px;
         border-radius: 4px;
         border: 1px solid #e4e7ed;
-        background: #dee7ff;
+        background: #fff;
         color: #606266;
         font-size: 14px;
         cursor: pointer;
         transition: all 0.3s ease;
 
-        &:hover {
-            background: #d7dce6;
+        &:hover:not(:disabled) {
+            color: $--color-primary;
+            border-color: mix($--color-primary, white, 80%);
+        }
+
+        &.active {
+            background: $--color-primary !important;
+            color: #ffffff !important;
+            border-color: $--color-primary !important;
         }
 
         &:disabled {
@@ -512,42 +510,15 @@ export default {
             cursor: not-allowed;
         }
     }
-
-    .pagination-btn:not(:first-child):not(:nth-child(3)):not(:nth-child(2)):not(:nth-last-child(2)) {
-        min-width: 28px;
-        height: 32px;
-        padding: 0;
-        border-radius: 4px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: #606266;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-
-        &:hover {
-            background: rgba(245, 247, 250, 0.3);
-        }
-    }
-
-    .pagination-btn.active {
-        background: #5f70f3 !important;
-        color: #ffffff !important;
-        border-color: #5f70f3 !important;
-
-        &:hover {
-            background: #6d7cf5 !important;
-        }
-    }
-
-    .total-text {
-        color: #909399;
-        font-size: 14px;
-        margin-left: 10px;
-    }
 }
 
-:deep(.transparent-table) {
+.total-text {
+    margin-left: 10px;
+    color: #606266;
+    font-size: 14px;
+}
+
+.transparent-table {
     background: white;
     flex: 1;
     width: 100%;
@@ -557,7 +528,6 @@ export default {
     .el-table__body-wrapper {
         flex: 1;
         overflow-y: auto;
-        max-height: none !important;
     }
 
     .el-table__header-wrapper {
@@ -567,135 +537,29 @@ export default {
     .el-table__header th {
         background: white !important;
         color: black;
+        font-weight: 600;
     }
 
     &::before {
         display: none;
     }
-
-    .el-table__body tr {
-        background-color: white;
-
-        td {
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-        }
-    }
-}
-
-
-:deep(.el-checkbox__inner) {
-    background-color: #eeeeee !important;
-    border-color: #cccccc !important;
-}
-
-:deep(.el-checkbox__inner:hover) {
-    border-color: #cccccc !important;
-}
-
-:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-    background-color: #5f70f3 !important;
-    border-color: #5f70f3 !important;
-}
-
-@media (min-width: 1144px) {
-    .table_bottom {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 40px;
-    }
-
-    :deep(.transparent-table) {
-        .el-table__body tr {
-            td {
-                padding-top: 16px;
-                padding-bottom: 16px;
-            }
-
-            &+tr {
-                margin-top: 10px;
-            }
-        }
-    }
 }
 
 :deep(.el-table .el-button--text) {
-    color: #7079aa;
-}
+    color: $--color-primary !important;
 
-:deep(.el-table .el-button--text:hover) {
-    color: #5a64b5;
-}
-
-.el-button--success {
-    background: #5bc98c;
-    color: white;
-}
-
-:deep(.el-table .cell) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.page-size-select {
-    width: 100px;
-    margin-right: 10px;
-
-    :deep(.el-input__inner) {
-        height: 32px;
-        line-height: 32px;
-        border-radius: 4px;
-        border: 1px solid #e4e7ed;
-        background: #dee7ff;
-        color: #606266;
-        font-size: 14px;
-    }
-
-    :deep(.el-input__suffix) {
-        right: 6px;
-        width: 15px;
-        height: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        top: 6px;
-        border-radius: 4px;
-    }
-
-    :deep(.el-input__suffix-inner) {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-    }
-
-    :deep(.el-icon-arrow-up:before) {
-        content: "";
-        display: inline-block;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 9px solid #606266;
-        position: relative;
-        transform: rotate(0deg);
-        transition: transform 0.3s;
+    &:hover {
+        color: darken($--color-primary, 10%) !important;
     }
 }
 
-:deep(.el-table) {
-    .el-table__body-wrapper {
-        transition: height 0.3s ease;
-    }
+:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    background-color: $--color-primary !important;
+    border-color: $--color-primary !important;
 }
 
-.el-table {
-    --table-max-height: calc(100vh - 40vh);
-    max-height: var(--table-max-height);
-
-    .el-table__body-wrapper {
-        max-height: calc(var(--table-max-height) - 40px);
-    }
+:deep(.el-checkbox__inner:hover) {
+    border-color: $--color-primary !important;
 }
 
 :deep(.el-loading-mask) {
@@ -703,18 +567,7 @@ export default {
     backdrop-filter: blur(2px);
 }
 
-:deep(.el-loading-spinner .circular) {
-    width: 28px;
-    height: 28px;
-}
-
 :deep(.el-loading-spinner .path) {
-    stroke: #6b8cff;
-}
-
-:deep(.el-loading-text) {
-    color: #6b8cff !important;
-    font-size: 14px;
-    margin-top: 8px;
+    stroke: $--color-primary;
 }
 </style>

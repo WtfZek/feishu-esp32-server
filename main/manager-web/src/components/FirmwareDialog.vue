@@ -211,12 +211,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
+
 ::v-deep .el-dialog {
   border-radius: 20px;
 }
 
 .upload-demo {
   text-align: left;
+
+  .el-button--primary {
+    background-color: $--color-primary;
+    border-color: $--color-primary;
+
+    &:hover {
+        background-color: darken($--color-primary, 5%);
+        border-color: darken($--color-primary, 5%);
+    }
+  }
 }
 
 .el-upload__tip {
@@ -230,5 +242,21 @@ export default {
   align-items: center;
   gap: 8px;
   font-size: 14px;
+}
+
+::v-deep .el-progress-bar__inner {
+  background-color: $--color-primary;
+}
+
+.dialog-footer {
+    .el-button--primary {
+        background-color: $--color-primary;
+        border-color: $--color-primary;
+
+        &:hover {
+            background-color: darken($--color-primary, 5%);
+            border-color: darken($--color-primary, 5%);
+        }
+    }
 }
 </style>

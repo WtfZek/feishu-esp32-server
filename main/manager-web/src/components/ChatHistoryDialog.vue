@@ -271,7 +271,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .chat-container {
     display: flex;
     height: 100%;
@@ -298,7 +300,7 @@ export default {
 }
 
 .session-item.active {
-    background-color: #e6f7ff;
+    background-color: $--color-primary-light;
 }
 
 .avatar {
@@ -370,11 +372,11 @@ export default {
     font-size: 20px;
     cursor: pointer;
     margin: 0 5px;
-    color: #1890ff;
+    color: $--color-primary;
 }
 
 .user-message .message-content {
-    background-color: #1890ff;
+    background-color: $--color-primary;
     color: white;
     flex-direction: row-reverse;
 }
@@ -417,7 +419,9 @@ export default {
 }
 </style>
 
-<style>
+<style lang="scss">
+@import '~@/styles/variables.scss';
+
 .chat-history-dialog {
     display: flex;
     flex-direction: column;
@@ -434,7 +438,7 @@ export default {
 }
 
 .chat-history-dialog .el-dialog__header {
-    background-color: #e6f7ff;
+    background-color: $--color-primary-light;
     padding: 15px 20px;
 }
 

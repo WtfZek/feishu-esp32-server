@@ -1,15 +1,16 @@
 <template>
   <div class="device-item">
-    <div style="display: flex;justify-content: space-between;">
+    <div style="display: flex;justify-content: space-between;align-items: center;">
       <div style="font-weight: 700;font-size: 18px;text-align: left;color: #3d4566;">
         {{ device.agentName }}
       </div>
-      <div>
-        <img src="@/assets/home/delete.png" alt="" style="width: 18px;height: 18px;margin-right: 10px;"
-          @click.stop="handleDelete" />
+      <div class="header-actions">
+        <el-tooltip content="删除智能体" placement="top">
+          <i class="el-icon-delete action-icon delete-icon" @click.stop="handleDelete"></i>
+        </el-tooltip>
         <el-tooltip class="item" effect="dark" :content="device.systemPrompt" placement="top"
           popper-class="custom-tooltip">
-          <img src="@/assets/home/info.png" alt="" style="width: 18px;height: 18px;" />
+          <i class="el-icon-info action-icon info-icon"></i>
         </el-tooltip>
       </div>
     </div>
@@ -89,13 +90,40 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
+@import '~@/styles/variables.scss';
+
 .device-item {
   width: 342px;
   border-radius: 20px;
   background: #fafcfe;
   padding: 22px;
   box-sizing: border-box;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.action-icon {
+  font-size: 20px;
+  color: #b0bec5;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.action-icon:hover {
+  transform: scale(1.2);
+}
+
+.delete-icon:hover {
+  color: $--color-danger;
+}
+
+.info-icon {
+  color: $--color-primary;
 }
 
 .device-name {
@@ -109,14 +137,19 @@ export default {
 .settings-btn {
   font-weight: 500;
   font-size: 12px;
-  color: #5778ff;
-  background: #e6ebff;
+  color: $--color-primary;
+  background: $--color-primary-light;
   width: auto;
   padding: 0 12px;
   height: 21px;
   line-height: 21px;
   cursor: pointer;
   border-radius: 14px;
+  transition: background-color 0.3s;
+}
+
+.settings-btn:not(.disabled-btn):hover {
+  background-color: mix($--color-primary, #ffffff, 25%);
 }
 
 .version-info {
